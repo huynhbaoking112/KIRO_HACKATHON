@@ -6,3 +6,11 @@ pytest
 pytest-asyncio
 httpx
 hypothesis
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+
+# MongoDB
+motor
+email-validator
