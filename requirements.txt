@@ -13,3 +13,4 @@ passlib[bcrypt]
 
 # MongoDB
 motor
+email-validator

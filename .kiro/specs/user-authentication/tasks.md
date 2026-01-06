@@ -61,8 +61,9 @@ Implementation plan cho hệ thống User Authentication theo pattern Controller
     - **Property 11: Password Length Validation**
     - **Validates: Requirements 1.3, 1.4**
 
-- [ ] 4. Setup Repository Layer
-  - [ ] 4.1 Create User Repository
+
+- [x] 4. Setup Repository Layer
+  - [x] 4.1 Create User Repository
     - Tạo `app/repo/__init__.py`
     - Tạo `app/repo/user_repo.py` với UserRepository class
     - Implement create, find_by_email, find_by_id methods
