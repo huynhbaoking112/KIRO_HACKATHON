@@ -1,3 +1,7 @@
+---
+inclusion: manual
+---
+
 # Project Structure Guidelines
 
 This document defines the folder structure conventions for the AI Service project built with FastAPI, LangChain, and LangGraph.
