@@ -69,13 +69,13 @@ Implementation plan cho hệ thống User Authentication theo pattern Controller
     - Implement create, find_by_email, find_by_id methods
     - _Requirements: 1.6_
 
-- [ ] 5. Setup Service Layer
-  - [ ] 5.1 Create Custom Exceptions
+- [x] 5. Setup Service Layer
+  - [x] 5.1 Create Custom Exceptions
     - Update `app/common/exceptions.py`
     - Thêm AuthenticationError, InvalidTokenError, EmailAlreadyExistsError, InactiveUserError, PermissionDeniedError
     - _Requirements: 1.2, 2.2, 2.3, 2.4, 3.3, 3.4_
 
-  - [ ] 5.2 Implement Auth Service
+  - [x] 5.2 Implement Auth Service
     - Tạo `app/services/auth/__init__.py`
     - Tạo `app/services/auth/auth_service.py` với AuthService class
     - Implement register_user, authenticate_user, create_access_token, verify_token
@@ -87,7 +87,7 @@ Implementation plan cho hệ thống User Authentication theo pattern Controller
     - **Property 5: Invalid Credentials Rejection**
     - **Validates: Requirements 1.1, 1.2, 2.2, 2.3**
 
-  - [ ] 5.4 Implement User Service
+  - [x] 5.4 Implement User Service
     - Update `app/services/business/user_service.py` với UserService class
     - Implement get_user_by_id method
     - _Requirements: 4.1_
