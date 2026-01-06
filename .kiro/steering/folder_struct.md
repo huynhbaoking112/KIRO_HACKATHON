@@ -24,12 +24,24 @@ app/
 ├── graphs/                    # LangGraph Workflows
 ├── chains/                    # Simple LangChain Chains
 ├── services/                  # Business logic orchestration
+├── repo/                      # Repository layer - data access
 ├── infrastructure/            # External integrations
 ├── domain/                    # Domain models & schemas
 ├── prompts/                   # Prompt templates
 ├── workers/                   # Background jobs
 └── common/                    # Shared utilities
 ```
+
+## Request Flow Architecture
+
+```
+API (Controller) → Service → Repository → Infrastructure
+```
+
+- **API/Controller**: Receive request, validate input, return response
+- **Service**: Handle business logic, orchestrate multiple repos if needed
+- **Repository**: Data access layer, CRUD operations
+- **Infrastructure**: Database connections, external services
 
 ## Module Conventions
 
@@ -119,10 +131,30 @@ services/
 ```
 
 Rules:
-- Services orchestrate agents, graphs, and infrastructure
+- Services orchestrate agents, graphs, and repositories
 - Keep AI services separate from business services
 - Services should be stateless
-- Use dependency injection for infrastructure
+- Use dependency injection for repositories
+
+### `/repo` - Repository Layer (Data Access)
+- Layer for direct database operations
+- Each entity has a corresponding repository file
+- Contains basic CRUD operations
+
+```python
+# Example: user_repo.py
+class UserRepository:
+    def __init__(self, db: MongoDB):
+        self.collection = db.get_collection("users")
+    
+    async def find_by_id(self, user_id: str) -> Optional[User]:
+        doc = await self.collection.find_one({"_id": user_id})
+        return User(**doc) if doc else None
+    
+    async def create(self, user: User) -> User:
+        await self.collection.insert_one(user.dict())
+        return user
+```
 
 ### `/infrastructure` - External Integrations
 Structure:
