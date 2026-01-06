@@ -19,6 +19,15 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
 
+    # MongoDB
+    MONGODB_URI: str = "mongodb://localhost:27017"
+    MONGODB_DB_NAME: str = "ai_service"
+
+    # JWT
+    JWT_SECRET_KEY: str  # Required, no default for security
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRATION_DAYS: int = 3
+
 
 @lru_cache
 def get_settings() -> Settings:
