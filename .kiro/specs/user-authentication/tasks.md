@@ -95,25 +95,25 @@ Implementation plan cho hệ thống User Authentication theo pattern Controller
 - [ ] 6. Checkpoint - Ensure service tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Setup API Layer
-  - [ ] 7.1 Create Auth Dependencies
+- [x] 7. Setup API Layer
+  - [x] 7.1 Create Auth Dependencies
     - Update `app/api/deps.py`
     - Implement get_current_user, get_current_active_user, require_admin dependencies
     - Setup OAuth2PasswordBearer
     - _Requirements: 4.2, 4.3, 5.2, 5.3, 5.4_
 
-  - [ ] 7.2 Create Auth Routes
+  - [x] 7.2 Create Auth Routes
     - Tạo `app/api/v1/auth/__init__.py`
     - Tạo `app/api/v1/auth/routes.py`
     - Implement POST /auth/register, POST /auth/login
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 7.3 Update User Routes
+  - [x] 7.3 Update User Routes
     - Update `app/api/v1/business/users.py`
     - Implement GET /users/me với get_current_active_user dependency
     - _Requirements: 4.1, 4.4_
 
-  - [ ] 7.4 Update API Router
+  - [x] 7.4 Update API Router
     - Update `app/api/v1/router.py` để include auth routes
     - _Requirements: 1.1, 2.1_
 
