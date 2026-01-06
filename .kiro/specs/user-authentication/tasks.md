@@ -44,13 +44,13 @@ Implementation plan cho hệ thống User Authentication theo pattern Controller
 - [ ] 2. Checkpoint - Ensure infrastructure tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 3. Setup Domain Layer
-  - [ ] 3.1 Create User Model và Enums
+- [x] 3. Setup Domain Layer
+  - [x] 3.1 Create User Model và Enums
     - Tạo `app/domain/models/user.py` với User model, UserRole enum
     - Fields: id, email, hashed_password, role, is_active, created_at, updated_at
     - _Requirements: 1.6, 5.1_
 
-  - [ ] 3.2 Create Auth Schemas
+  - [x] 3.2 Create Auth Schemas
     - Tạo `app/domain/schemas/auth.py`
     - RegisterRequest, LoginRequest, TokenResponse, TokenPayload, UserResponse
     - Email validation, password min_length=8
