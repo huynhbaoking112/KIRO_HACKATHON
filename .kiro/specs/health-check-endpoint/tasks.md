@@ -34,14 +34,14 @@ Implement a health check endpoint for the AI Service platform following clean ar
     - Test returns correct JSON response
     - _Requirements: 3.1, 3.2_
 
-- [ ] 4. Set up API router aggregation
-  - [ ] 4.1 Update `app/api/v1/router.py`
+- [x] 4. Set up API router aggregation
+  - [x] 4.1 Update `app/api/v1/router.py`
     - Create main v1 router
     - Include health check router
     - _Requirements: 4.1, 4.2_
 
-- [ ] 5. Implement FastAPI application
-  - [ ] 5.1 Update `app/main.py`
+- [x] 5. Implement FastAPI application
+  - [x] 5.1 Update `app/main.py`
     - Create lifespan context manager
     - Initialize FastAPI with settings
     - Include v1 router with prefix
