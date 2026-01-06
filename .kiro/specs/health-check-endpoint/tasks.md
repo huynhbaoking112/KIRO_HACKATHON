@@ -10,7 +10,7 @@ Implement a health check endpoint for the AI Service platform following clean ar
   - Create `requirements.txt` with FastAPI, uvicorn, pydantic-settings, python-dotenv
   - _Requirements: 1.1, 1.2_
 
-- [ ] 2. Implement application configuration
+- [-] 2. Implement application configuration
   - [ ] 2.1 Create Settings class in `app/config/settings.py`
     - Define BaseSettings with SettingsConfigDict for .env support
     - Add APP_NAME, APP_VERSION, DEBUG, API_V1_PREFIX fields with defaults
