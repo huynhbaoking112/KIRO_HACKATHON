@@ -97,14 +97,14 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
   - Verify domain models, infrastructure, repositories, and services are working
   - Ask the user if questions arise
 
-- [ ] 7. Implement API Layer
-  - [ ] 7.1 Implement Internal API Router
+- [x] 7. Implement API Layer
+  - [x] 7.1 Implement Internal API Router
     - Create `app/api/v1/internal/__init__.py`
     - Create `app/api/v1/internal/router.py`
     - Implement `verify_internal_api_key` dependency
     - Implement `POST /trigger-sync` endpoint with BackgroundTasks
     - _Requirements: 6.1, 6.2, 6.3_
-  - [ ] 7.2 Implement Sheet Crawler Public API Router
+  - [x] 7.2 Implement Sheet Crawler Public API Router
     - Create `app/api/v1/sheet_crawler/__init__.py`
     - Create `app/api/v1/sheet_crawler/router.py`
     - Implement `GET /service-account` endpoint
@@ -117,7 +117,7 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - **Property 7: Preview Row Limit**
     - **Property 8: Sync Task Enqueue**
     - **Validates: Requirements 2.6, 4.2, 5.1, 6.2**
-  - [ ] 7.4 Register routers in main application
+  - [x] 7.4 Register routers in main application
     - Update `app/api/v1/router.py` to include internal and sheet_crawler routers
     - _Requirements: 1.1, 2.1_
 

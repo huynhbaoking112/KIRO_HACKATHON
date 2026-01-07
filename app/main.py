@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from app.api.v1.router import router as v1_router
 from app.config.settings import get_settings
 from app.infrastructure.database.mongodb import MongoDB
+from app.infrastructure.redis.client import RedisClient
 from app.socket_gateway import sio
 
 settings = get_settings()
@@ -18,8 +19,10 @@ async def lifespan(_app: FastAPI):
     """Lifespan context manager for startup and shutdown events."""
     # Startup
     await MongoDB.connect(settings.MONGODB_URI, settings.MONGODB_DB_NAME)
+    await RedisClient.connect(settings.REDIS_URL)
     yield
     # Shutdown
+    await RedisClient.disconnect()
     await MongoDB.disconnect()
 
 

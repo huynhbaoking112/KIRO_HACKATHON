@@ -9,8 +9,21 @@ from app.common.repo import (
     get_user_repo,
 )
 from app.infrastructure.google_sheets.client import GoogleSheetClient
+from app.infrastructure.redis.client import RedisClient
+from app.infrastructure.redis.redis_queue import RedisQueue
 from app.services.auth.auth_service import AuthService
 from app.services.business.sheet_crawler.crawler_service import SheetCrawlerService
+
+
+@lru_cache
+def get_redis_queue() -> RedisQueue:
+    """Get singleton RedisQueue instance.
+
+    Returns:
+        RedisQueue instance with Redis client
+    """
+    client = RedisClient.get_client()
+    return RedisQueue(client)
 
 
 @lru_cache
