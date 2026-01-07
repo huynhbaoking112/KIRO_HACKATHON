@@ -6,6 +6,7 @@ pytest
 pytest-asyncio
 httpx
 hypothesis
+python-socketio
 
 # Authentication
 python-jose[cryptography]
