@@ -39,8 +39,8 @@ Implement Socket Gateway module sử dụng python-socketio để cung cấp rea
     - **Property 2: Invalid Token Rejection**
     - **Validates: Requirements 1.2, 1.3**
 
-- [ ] 4. Implement SocketGateway class
-  - [ ] 4.1 Implement `__init__.py` với SocketGateway class
+- [x] 4. Implement SocketGateway class
+  - [x] 4.1 Implement `__init__.py` với SocketGateway class
     - Import sio từ server.py
     - Create socket_app = socketio.ASGIApp(sio)
     - Implement `emit_to_user(user_id, event, data)`
