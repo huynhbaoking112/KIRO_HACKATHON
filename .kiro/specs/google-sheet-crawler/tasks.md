@@ -43,16 +43,16 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - Implement `get_sheet_values`, `get_sheet_metadata`, `check_access` methods
     - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
 
-- [ ] 4. Implement Repository Layer
-  - [ ] 4.1 Implement Sheet Connection Repository
+- [x] 4. Implement Repository Layer
+  - [x] 4.1 Implement Sheet Connection Repository
     - Create `app/repo/sheet_connection_repo.py`
     - Implement CRUD operations: `create`, `find_by_id`, `find_by_user_id`, `find_all_enabled`, `update`, `delete`
     - _Requirements: 2.1, 2.3, 2.4, 2.6, 2.7, 6.2_
-  - [ ] 4.2 Implement Sheet Sync State Repository
+  - [x] 4.2 Implement Sheet Sync State Repository
     - Create `app/repo/sheet_sync_state_repo.py`
     - Implement `find_by_connection_id`, `update_state`, `delete_by_connection_id`
     - _Requirements: 7.3, 7.4, 11.1_
-  - [ ] 4.3 Implement Sheet Data Repository
+  - [x] 4.3 Implement Sheet Data Repository
     - Create `app/repo/sheet_data_repo.py`
     - Implement `upsert`, `find_by_connection_id` (with pagination), `delete_by_connection_id`
     - _Requirements: 10.1, 10.2, 14.1, 14.3_
@@ -63,7 +63,7 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - **Property 14: Pagination Correctness**
     - **Property 15: Data Upsert Idempotency**
     - **Validates: Requirements 2.1, 2.3, 2.4, 2.7, 10.1, 10.2, 14.3**
-  - [ ] 4.5 Update common/repo.py with factory functions
+  - [x] 4.5 Update common/repo.py with factory functions
     - Add `get_sheet_connection_repo`, `get_sheet_sync_state_repo`, `get_sheet_data_repo`
     - _Requirements: 2.1_
 
