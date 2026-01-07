@@ -2,11 +2,13 @@
 
 from contextlib import asynccontextmanager
 
+import socketio
 from fastapi import FastAPI
 
 from app.api.v1.router import router as v1_router
 from app.config.settings import get_settings
 from app.infrastructure.database.mongodb import MongoDB
+from app.socket_gateway import sio
 
 settings = get_settings()
 
@@ -28,3 +30,8 @@ app = FastAPI(
 )
 
 app.include_router(v1_router, prefix=settings.API_V1_PREFIX)
+
+# Combine FastAPI with Socket.IO for real-time messaging
+# Socket.IO handles WebSocket connections at root path
+# FastAPI handles REST API endpoints
+combined_app = socketio.ASGIApp(sio, other_asgi_app=app)
