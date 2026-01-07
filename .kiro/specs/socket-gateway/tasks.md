@@ -25,8 +25,8 @@ Implement Socket Gateway module sử dụng python-socketio để cung cấp rea
     - Test với expired token
     - _Requirements: 1.2, 1.3_
 
-- [ ] 3. Implement Socket.IO server
-  - [ ] 3.1 Implement `server.py` với AsyncServer setup
+- [-] 3. Implement Socket.IO server
+  - [x] 3.1 Implement `server.py` với AsyncServer setup
     - Create `sio` instance với async_mode='asgi'
     - Implement `connect` event handler với JWT auth
     - Auto-join user to personal room `user:{user_id}`
