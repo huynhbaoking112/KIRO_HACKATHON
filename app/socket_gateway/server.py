@@ -17,6 +17,9 @@ async def connect(sid: str, environ: dict, auth: dict | None = None) -> None:
     """Handle client connection.
 
     Authenticates JWT token and joins user to their personal room.
+    Token can be provided via:
+    - auth object: {"token": "jwt-string"}
+    - query params: ?token=jwt-string (for Postman testing)
 
     Args:
         sid: Socket session ID
@@ -26,7 +29,7 @@ async def connect(sid: str, environ: dict, auth: dict | None = None) -> None:
     Raises:
         ConnectionRefusedError: If authentication fails
     """
-    user_data = await authenticate(auth)
+    user_data = await authenticate(auth, environ)
 
     if user_data is None:
         raise ConnectionRefusedError("Unauthorized")
