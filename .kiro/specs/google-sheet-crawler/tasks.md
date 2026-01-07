@@ -67,8 +67,8 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - Add `get_sheet_connection_repo`, `get_sheet_sync_state_repo`, `get_sheet_data_repo`
     - _Requirements: 2.1_
 
-- [ ] 5. Implement Service Layer
-  - [ ] 5.1 Implement Column Mapper
+- [x] 5. Implement Service Layer
+  - [x] 5.1 Implement Column Mapper
     - Create `app/services/business/sheet_crawler/__init__.py`
     - Create `app/services/business/sheet_crawler/column_mapper.py`
     - Implement `ColumnMapper` with `map_row` and `convert_type` methods
@@ -78,7 +78,7 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - **Property 5: Column Mapping Flexibility**
     - **Property 6: Type Conversion with Fallback**
     - **Validates: Requirements 3.1, 3.3, 3.4**
-  - [ ] 5.3 Implement Crawler Service
+  - [x] 5.3 Implement Crawler Service
     - Create `app/services/business/sheet_crawler/crawler_service.py`
     - Implement `SheetCrawlerService` with `sync_sheet`, `preview_sheet` methods
     - Integrate with GoogleSheetClient, repositories, and SocketGateway
@@ -88,7 +88,7 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - **Property 9: WebSocket Notification Completeness**
     - **Property 10: Incremental Sync Correctness**
     - **Validates: Requirements 5.3, 5.4, 5.5, 7.1, 7.3, 12.1, 12.2, 12.3**
-  - [ ] 5.5 Update common/service.py with factory functions
+  - [x] 5.5 Update common/service.py with factory functions
     - Add `get_crawler_service`, `get_google_sheet_client`
     - _Requirements: 5.1_
 
