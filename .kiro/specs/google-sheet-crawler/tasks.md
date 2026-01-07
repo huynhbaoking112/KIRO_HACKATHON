@@ -26,8 +26,8 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - Add: `gspread`, `gspread-asyncio`, `google-auth`, `python-dateutil`
     - _Requirements: 13.1_
 
-- [ ] 3. Implement Infrastructure Layer
-  - [ ] 3.1 Implement Token Bucket Rate Limiter
+- [x] 3. Implement Infrastructure Layer
+  - [x] 3.1 Implement Token Bucket Rate Limiter
     - Create `app/infrastructure/google_sheets/__init__.py`
     - Create `app/infrastructure/google_sheets/rate_limiter.py`
     - Implement `TokenBucket` class with capacity, refill_rate, acquire method
@@ -37,7 +37,7 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - **Property 11: Token Bucket Refill Rate**
     - **Property 12: Token Bucket Blocking Behavior**
     - **Validates: Requirements 8.1, 8.2, 8.3, 8.4**
-  - [ ] 3.3 Implement Google Sheet Client
+  - [x] 3.3 Implement Google Sheet Client
     - Create `app/infrastructure/google_sheets/client.py`
     - Implement `GoogleSheetClient` with service account authentication
     - Implement `get_sheet_values`, `get_sheet_metadata`, `check_access` methods
