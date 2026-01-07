@@ -12,6 +12,8 @@ from gspread_asyncio import AsyncioGspreadClientManager
 from google.oauth2.service_account import Credentials
 
 from app.config.settings import get_settings
+import os
+from pathlib import Path
 
 
 class GoogleSheetClientError(Exception):
@@ -46,10 +48,36 @@ class GoogleSheetClient:
     def _get_credentials(self) -> Credentials:
         """Create credentials from service account JSON.
 
+        Supports both:
+        - JSON string directly in env var
+        - Path to JSON file (relative to project root or absolute)
+
         Returns:
             Google OAuth2 credentials with required scopes.
         """
-        service_account_info = json.loads(self._settings.GOOGLE_SERVICE_ACCOUNT_JSON)
+
+        json_value = self._settings.GOOGLE_SERVICE_ACCOUNT_JSON
+
+        # Check if it's a file path or JSON string
+        if json_value.strip().startswith("{"):
+            # It's a JSON string
+            service_account_info = json.loads(json_value)
+        else:
+            # It's a file path - resolve relative to project root
+            file_path = Path(json_value)
+            if not file_path.is_absolute():
+                # Get project root (where app/ folder is)
+                project_root = Path(__file__).parent.parent.parent.parent
+                file_path = project_root / json_value
+
+            if not file_path.exists():
+                raise FileNotFoundError(
+                    f"Service account JSON file not found: {file_path}"
+                )
+
+            with open(file_path, "r", encoding="utf-8") as f:
+                service_account_info = json.load(f)
+
         credentials = Credentials.from_service_account_info(
             service_account_info, scopes=self.SCOPES
         )

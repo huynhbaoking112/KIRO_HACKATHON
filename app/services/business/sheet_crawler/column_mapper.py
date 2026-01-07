@@ -11,6 +11,17 @@ from typing import Any, Optional
 from app.domain.schemas.sheet_crawler import ColumnMapping
 
 
+class MissingRequiredColumnError(Exception):
+    """Raised when a required column is not found in the sheet."""
+
+    def __init__(self, column_name: str, system_field: str):
+        self.column_name = column_name
+        self.system_field = system_field
+        super().__init__(
+            f"Required column '{column_name}' for field '{system_field}' not found in sheet"
+        )
+
+
 class ColumnMapper:
     """Maps Google Sheet row data to system fields using column mappings."""
 
@@ -55,8 +66,8 @@ class ColumnMapper:
             0-based column index, or None if not found
         """
         # Check if it's a column letter (A, B, AA, etc.)
-        if self.is_column_letter(sheet_column):
-            return self.column_letter_to_index(sheet_column)
+        # if self.is_column_letter(sheet_column):
+        #     return self.column_letter_to_index(sheet_column)
 
         # Otherwise, treat as header name - find in headers list
         try:
@@ -135,6 +146,9 @@ class ColumnMapper:
 
         Returns:
             Dictionary with system_field as keys and converted values
+
+        Raises:
+            MissingRequiredColumnError: If a required column is not found
         """
         result: dict[str, Any] = {}
 
@@ -142,7 +156,14 @@ class ColumnMapper:
             col_index = self.get_column_index(mapping.sheet_column, headers)
 
             if col_index is None:
-                # Column not found - skip this mapping
+                # Column not found
+                if mapping.required:
+                    # Requirement 3.2: Raise validation error for missing required columns
+                    raise MissingRequiredColumnError(
+                        column_name=mapping.sheet_column,
+                        system_field=mapping.system_field,
+                    )
+                # Optional column - skip this mapping
                 continue
 
             if col_index >= len(row):
@@ -174,3 +195,28 @@ class ColumnMapper:
             else:
                 raw_data[header] = ""
         return raw_data
+
+    def validate_required_columns(
+        self,
+        headers: list[str],
+        mappings: list[ColumnMapping],
+    ) -> None:
+        """Validate that all required columns exist in headers.
+
+        Should be called before processing rows to fail fast.
+
+        Args:
+            headers: List of header values from the sheet
+            mappings: List of column mappings to validate
+
+        Raises:
+            MissingRequiredColumnError: If any required column is not found
+        """
+        for mapping in mappings:
+            if mapping.required:
+                col_index = self.get_column_index(mapping.sheet_column, headers)
+                if col_index is None:
+                    raise MissingRequiredColumnError(
+                        column_name=mapping.sheet_column,
+                        system_field=mapping.system_field,
+                    )

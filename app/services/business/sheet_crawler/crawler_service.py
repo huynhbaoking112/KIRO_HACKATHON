@@ -20,7 +20,10 @@ from app.infrastructure.google_sheets.client import (
 from app.repo.sheet_connection_repo import SheetConnectionRepository
 from app.repo.sheet_data_repo import SheetDataRepository
 from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
-from app.services.business.sheet_crawler.column_mapper import ColumnMapper
+from app.services.business.sheet_crawler.column_mapper import (
+    ColumnMapper,
+    MissingRequiredColumnError,
+)
 from app.socket_gateway import gateway
 
 logger = logging.getLogger(__name__)
@@ -189,6 +192,12 @@ class SheetCrawlerService:
                 header_row=connection.header_row,
             )
 
+            # Validate required columns exist (Requirement 3.2)
+            self.column_mapper.validate_required_columns(
+                headers=headers,
+                mappings=connection.column_mappings,
+            )
+
             # Fetch data starting from start_row
             rows = await self.sheet_client.get_sheet_values(
                 sheet_id=connection.sheet_id,
@@ -262,6 +271,35 @@ class SheetCrawlerService:
             )
 
         except GoogleSheetClientError as e:
+            error_message = str(e)
+            logger.error(
+                "Sync failed for connection %s: %s", connection_id, error_message
+            )
+
+            # Update sync state with failure
+            await self.sync_state_repo.update_state(
+                connection_id=connection_id,
+                last_synced_row=last_synced_row,
+                status=SyncStatus.FAILED,
+                total_rows_synced=total_rows_synced,
+                error_message=error_message,
+            )
+
+            # Notify sync failed
+            await self._emit_sync_failed(
+                user_id=effective_user_id,
+                connection_id=connection_id,
+                error_message=error_message,
+            )
+
+            return SyncResult(
+                success=False,
+                rows_synced=0,
+                total_rows=total_rows_synced,
+                error_message=error_message,
+            )
+
+        except MissingRequiredColumnError as e:
             error_message = str(e)
             logger.error(
                 "Sync failed for connection %s: %s", connection_id, error_message
