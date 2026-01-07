@@ -57,8 +57,8 @@ Implement Socket Gateway module sử dụng python-socketio để cung cấp rea
     - **Property 4: Room Operations Parameter Passing**
     - **Validates: Requirements 3.1, 5.1, 5.2**
 
-- [ ] 5. Integrate với FastAPI
-  - [ ] 5.1 Update `main.py` để mount Socket Gateway
+- [x] 5. Integrate với FastAPI
+  - [x] 5.1 Update `main.py` để mount Socket Gateway
     - Import sio từ socket_gateway
     - Create combined_app với socketio.ASGIApp
     - Export combined_app thay vì app

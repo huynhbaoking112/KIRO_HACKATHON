@@ -2,6 +2,7 @@
 
 This module provides a SocketGateway class that wraps python-socketio
 to enable real-time communication from server to clients.
+
 """
 
 import socketio
