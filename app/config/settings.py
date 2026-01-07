@@ -28,6 +28,19 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRATION_DAYS: int = 3
 
+    # Redis
+    REDIS_URL: str = "redis://localhost:6379"
+
+    # Internal API
+    INTERNAL_API_KEY: str  # API key for Cloud Scheduler
+
+    # Google Sheets
+    GOOGLE_SERVICE_ACCOUNT_JSON: str  # Service account credentials JSON
+    GOOGLE_SERVICE_ACCOUNT_EMAIL: str  # Email to display to users
+
+    # Sheet Crawler
+    SHEET_SYNC_QUEUE_NAME: str = "sheet_sync_tasks"
+
 
 @lru_cache
 def get_settings() -> Settings:

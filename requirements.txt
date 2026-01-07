@@ -15,3 +15,12 @@ passlib[bcrypt]
 # MongoDB
 motor
 email-validator
+
+# Google Sheets
+gspread
+gspread-asyncio
+google-auth
+python-dateutil
+
+# Redis
+redis

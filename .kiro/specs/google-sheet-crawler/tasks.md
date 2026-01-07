@@ -17,12 +17,12 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - Define response schemas: `ConnectionResponse`, `SyncStatusResponse`, `SheetPreviewResponse`, `SheetDataResponse`, `ServiceAccountInfoResponse`
     - _Requirements: 1.1, 1.2, 2.1, 10.1, 11.1_
 
-- [ ] 2. Setup Configuration
-  - [ ] 2.1 Add new settings to config
+- [x] 2. Setup Configuration
+  - [x] 2.1 Add new settings to config
     - Update `app/config/settings.py` with Google Sheets and internal API settings
     - Add: `INTERNAL_API_KEY`, `GOOGLE_SERVICE_ACCOUNT_JSON`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `SHEET_SYNC_QUEUE_NAME`, `REDIS_URL`
     - _Requirements: 6.3, 13.1_
-  - [ ] 2.2 Update requirements.txt
+  - [x] 2.2 Update requirements.txt
     - Add: `gspread`, `gspread-asyncio`, `google-auth`, `python-dateutil`
     - _Requirements: 13.1_
 
