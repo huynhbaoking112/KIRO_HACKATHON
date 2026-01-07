@@ -12,8 +12,8 @@ Implement Socket Gateway module sử dụng python-socketio để cung cấp rea
   - Tạo file `__init__.py` trống
   - _Requirements: 6.1_
 
-- [ ] 2. Implement authentication module
-  - [ ] 2.1 Implement `auth.py` với function `authenticate()`
+- [-] 2. Implement authentication module
+  - [x] 2.1 Implement `auth.py` với function `authenticate()`
     - Validate JWT token từ auth dict
     - Return `{"user_id": str}` nếu valid, `None` nếu invalid
     - Handle exceptions gracefully
