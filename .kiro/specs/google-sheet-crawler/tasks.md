@@ -121,8 +121,8 @@ Implementation plan cho tính năng Google Sheet Crawler với queue-based archi
     - Update `app/api/v1/router.py` to include internal and sheet_crawler routers
     - _Requirements: 1.1, 2.1_
 
-- [ ] 8. Implement Worker
-  - [ ] 8.1 Implement Sheet Sync Worker
+- [x] 8. Implement Worker
+  - [x] 8.1 Implement Sheet Sync Worker
     - Create `app/workers/sheet_sync_worker.py`
     - Implement `SheetSyncWorker` class with main loop
     - Integrate with Redis queue and rate limiter
