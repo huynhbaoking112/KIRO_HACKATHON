@@ -74,6 +74,7 @@ async def create_connection(
     current_user: User = Depends(get_current_active_user),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     sheet_client=Depends(get_google_sheet_client),
+    queue: RedisQueue = Depends(get_redis_queue),
 ) -> ConnectionResponse:
     """Create a new sheet connection.
 
@@ -109,6 +110,20 @@ async def create_connection(
 
     # Create connection
     connection = await connection_repo.create(current_user.id, request)
+
+    # Trigger initial sync by enqueuing task to Redis queue
+    settings = get_settings()
+    task_data = {
+        "connection_id": connection.id,
+        "user_id": current_user.id,
+        "retry_count": 0,
+    }
+    await queue.enqueue(settings.SHEET_SYNC_QUEUE_NAME, task_data)
+
+    logger.info(
+        "Created connection %s and enqueued initial sync task",
+        connection.id,
+    )
 
     return ConnectionResponse(
         id=connection.id,
