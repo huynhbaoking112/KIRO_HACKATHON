@@ -24,7 +24,8 @@ from app.services.business.sheet_crawler.column_mapper import (
     ColumnMapper,
     MissingRequiredColumnError,
 )
-from app.socket_gateway import gateway
+from app.common.event_socket import SheetSyncEvents
+from app.socket_gateway.worker_gateway import worker_gateway
 
 logger = logging.getLogger(__name__)
 
@@ -78,9 +79,9 @@ class SheetCrawlerService:
             user_id: User ID to notify
             connection_id: Connection ID being synced
         """
-        await gateway.emit_to_user(
+        await worker_gateway.emit_to_user(
             user_id=user_id,
-            event="sheet:sync:started",
+            event=SheetSyncEvents.STARTED,
             data={"connection_id": connection_id},
         )
 
@@ -99,9 +100,9 @@ class SheetCrawlerService:
             rows_synced: Number of rows synced in this operation
             total_rows: Total rows synced overall
         """
-        await gateway.emit_to_user(
+        await worker_gateway.emit_to_user(
             user_id=user_id,
-            event="sheet:sync:completed",
+            event=SheetSyncEvents.COMPLETED,
             data={
                 "connection_id": connection_id,
                 "rows_synced": rows_synced,
@@ -122,9 +123,9 @@ class SheetCrawlerService:
             connection_id: Connection ID that failed
             error_message: Error description
         """
-        await gateway.emit_to_user(
+        await worker_gateway.emit_to_user(
             user_id=user_id,
-            event="sheet:sync:failed",
+            event=SheetSyncEvents.FAILED,
             data={
                 "connection_id": connection_id,
                 "error": error_message,

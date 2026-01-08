@@ -36,8 +36,8 @@ Implementation plan cho tính năng Cross-Process Socket Emit sử dụng python
     - Test emit methods don't raise exceptions on error
     - _Requirements: 4.2, 4.4, 7.1_
 
-- [ ] 4. Update Main Gateway Module
-  - [ ] 4.1 Update __init__.py exports
+- [x] 4. Update Main Gateway Module
+  - [x] 4.1 Update __init__.py exports
     - Update `app/socket_gateway/__init__.py`
     - Re-export `worker_gateway` from worker_gateway module
     - Update `__all__` list
@@ -50,12 +50,12 @@ Implementation plan cho tính năng Cross-Process Socket Emit sử dụng python
   - Verify worker_gateway can be imported independently
   - Ask the user if questions arise
 
-- [ ] 6. Migrate Worker Code
-  - [ ] 6.1 Update crawler_service.py to use worker_gateway
+- [x] 6. Migrate Worker Code
+  - [x] 6.1 Update crawler_service.py to use worker_gateway
     - Update import from `gateway` to `worker_gateway`
     - Replace `gateway.emit_to_user` calls with `worker_gateway.emit_to_user`
     - _Requirements: 3.3_
-  - [ ] 6.2 Update sheet_sync_worker.py to use worker_gateway
+  - [x] 6.2 Update sheet_sync_worker.py to use worker_gateway
     - Update import from `gateway` to `worker_gateway`
     - Replace `gateway.emit_to_user` calls with `worker_gateway.emit_to_user`
     - _Requirements: 3.3, 7.4_

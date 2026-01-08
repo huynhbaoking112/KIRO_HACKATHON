@@ -13,11 +13,12 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 from app.common.service import get_crawler_service, get_redis_queue
+from app.common.event_socket import SheetSyncEvents
 from app.config.settings import get_settings
 from app.infrastructure.database.mongodb import MongoDB
 from app.infrastructure.google_sheets.rate_limiter import GoogleSheetsRateLimiter
 from app.infrastructure.redis.client import RedisClient
-from app.socket_gateway import gateway
+from app.socket_gateway.worker_gateway import worker_gateway
 
 logger = logging.getLogger(__name__)
 
@@ -111,9 +112,9 @@ class SheetSyncWorker:
             task: The failed sync task
             error_message: Error description
         """
-        await gateway.emit_to_user(
+        await worker_gateway.emit_to_user(
             user_id=task.user_id,
-            event="sheet:sync:failed",
+            event=SheetSyncEvents.FAILED,
             data={
                 "connection_id": task.connection_id,
                 "error": f"Sync failed after {self.MAX_RETRIES} retries: {error_message}",
