@@ -100,12 +100,12 @@ class ColumnMapper:
                 cleaned = str(value).replace(",", ".")
                 return float(cleaned)
 
-            elif data_type == "integer":
+            if data_type == "integer":
                 # Handle float strings by converting to float first
                 cleaned = str(value).replace(",", ".")
                 return int(float(cleaned))
 
-            elif data_type == "date":
+            if data_type == "date":
                 # Try common date formats
                 date_formats = [
                     "%Y-%m-%d",
@@ -123,9 +123,8 @@ class ColumnMapper:
                 # If no format matches, return original
                 return value
 
-            else:
-                # Unknown type, return as string
-                return str(value)
+            # Unknown type, return as string
+            return str(value)
 
         except (ValueError, TypeError):
             # Conversion failed, return original string value (Requirement 3.4)

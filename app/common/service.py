@@ -12,7 +12,7 @@ from app.infrastructure.google_sheets.client import GoogleSheetClient
 from app.infrastructure.redis.client import RedisClient
 from app.infrastructure.redis.redis_queue import RedisQueue
 from app.services.auth.auth_service import AuthService
-from app.services.business.sheet_crawler.crawler_service import SheetCrawlerService
+from app.services.sheet_crawler.crawler_service import SheetCrawlerService
 
 
 @lru_cache

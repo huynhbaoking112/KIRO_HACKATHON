@@ -36,7 +36,7 @@ from app.infrastructure.redis.redis_queue import RedisQueue
 from app.repo.sheet_connection_repo import SheetConnectionRepository
 from app.repo.sheet_data_repo import SheetDataRepository
 from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
-from app.services.business.sheet_crawler.crawler_service import SheetCrawlerService
+from app.services.sheet_crawler.crawler_service import SheetCrawlerService
 
 logger = logging.getLogger(__name__)
 

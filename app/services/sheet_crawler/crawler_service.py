@@ -20,7 +20,7 @@ from app.infrastructure.google_sheets.client import (
 from app.repo.sheet_connection_repo import SheetConnectionRepository
 from app.repo.sheet_data_repo import SheetDataRepository
 from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
-from app.services.business.sheet_crawler.column_mapper import (
+from app.services.sheet_crawler.column_mapper import (
     ColumnMapper,
     MissingRequiredColumnError,
 )
