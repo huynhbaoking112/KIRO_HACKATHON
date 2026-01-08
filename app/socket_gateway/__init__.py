@@ -1,8 +1,8 @@
 """Socket Gateway module for real-time server-to-client messaging.
 
-This module provides a SocketGateway class that wraps python-socketio
-to enable real-time communication from server to clients.
-
+This module provides:
+- SocketGateway: For use in FastAPI server context
+- WorkerSocketGateway: For use in worker processes (via worker_gateway)
 """
 
 import socketio
@@ -18,6 +18,9 @@ class SocketGateway:
 
     This class provides methods to emit events to specific users,
     rooms, or broadcast to all connected clients.
+
+    Use this in FastAPI server context. For worker processes,
+    use worker_gateway from app.socket_gateway.worker_gateway.
     """
 
     async def emit_to_user(self, user_id: str, event: str, data: dict) -> None:
