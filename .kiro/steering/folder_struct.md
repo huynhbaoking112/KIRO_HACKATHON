@@ -28,7 +28,8 @@ app/
 ├── infrastructure/            # External integrations
 ├── domain/                    # Domain models & schemas
 ├── prompts/                   # Prompt templates
-├── workers/                   # Background jobs
+├── socket_gateway/            # Real-time WebSocket/Socket.IO layer
+├── workers/                   # Background jobs & async tasks
 └── common/                    # Shared utilities
 ```
 
@@ -216,12 +217,142 @@ Rules:
 - Use for async operations: embedding, indexing, cleanup
 - Keep workers thin - delegate to services
 
+Structure:
+```
+workers/
+├── __init__.py
+├── sheet_sync_worker.py       # Google Sheets sync worker
+├── embedding_worker.py        # Vector embedding jobs
+└── cleanup_worker.py          # Data cleanup tasks
+```
+
+Rules:
+- Each worker handles one specific job type
+- Workers consume from Redis Queue (or other message broker)
+- Delegate business logic to services - workers only orchestrate
+- Use proper error handling and retry mechanisms
+- Log job progress and failures for observability
+
+```python
+# Example: sheet_sync_worker.py
+class SheetSyncWorker:
+    def __init__(self, queue: RedisQueue, crawler_service: CrawlerService):
+        self.queue = queue
+        self.crawler_service = crawler_service
+    
+    async def process_job(self, job_data: dict) -> None:
+        """Process a single sync job - delegate to service."""
+        connection_id = job_data["connection_id"]
+        await self.crawler_service.sync_sheet(connection_id)
+```
+
+### `/socket_gateway` - Real-time Communication Layer
+Structure:
+```
+socket_gateway/
+├── __init__.py                # Export sio instance
+├── server.py                  # Socket.IO AsyncServer setup & core events
+├── auth.py                    # JWT authentication for WebSocket
+├── manager.py                 # Connection/room management utilities
+└── worker_gateway.py          # Bridge between workers and Socket.IO
+```
+
+Rules:
+- `server.py` contains Socket.IO server instance and core event handlers (connect/disconnect)
+- `auth.py` handles JWT token validation for WebSocket connections
+- `manager.py` provides utilities for room management, broadcasting
+- `worker_gateway.py` enables background workers to emit events to connected clients
+- Keep event handlers thin - delegate business logic to services
+- Use rooms for user-specific or group messaging
+
+```python
+# Example: server.py
+import socketio
+
+sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
+
+@sio.event
+async def connect(sid: str, environ: dict, auth: dict | None = None) -> None:
+    """Authenticate and join user to personal room."""
+    user_data = await authenticate(auth, environ)
+    if user_data is None:
+        raise ConnectionRefusedError("Unauthorized")
+    await sio.enter_room(sid, f"user:{user_data['user_id']}")
+```
+
+```python
+# Example: worker_gateway.py - Cross-process emit
+class WorkerGateway:
+    """Enables workers to emit Socket.IO events via Redis pub/sub."""
+    
+    async def emit_to_user(self, user_id: str, event: str, data: dict) -> None:
+        """Publish event to Redis for Socket.IO server to broadcast."""
+        await self.redis.publish(
+            "socket_events",
+            {"room": f"user:{user_id}", "event": event, "data": data}
+        )
+```
+
+Integration with FastAPI (in `main.py`):
+```python
+from app.socket_gateway import sio
+
+# Combine FastAPI with Socket.IO
+combined_app = socketio.ASGIApp(sio, other_asgi_app=app)
+```
+
 ### `/common` - Shared Utilities
-- Cross-cutting concerns only
-- `exceptions.py` - Custom exceptions
-- `streaming.py` - SSE/WebSocket helpers
-- `callbacks.py` - LangChain callbacks
-- No business logic here
+Structure:
+```
+common/
+├── __init__.py
+├── exceptions.py              # Custom exceptions
+├── repo.py                    # Repository factory functions (singleton)
+├── service.py                 # Service factory functions (singleton)
+└── event_socket.py            # Socket event constants
+```
+
+Rules:
+- Cross-cutting concerns only - no business logic here
+- `repo.py` - Factory functions for repository singletons using `@lru_cache`
+- `service.py` - Factory functions for service singletons using `@lru_cache`
+- `event_socket.py` - Centralized socket event name constants to avoid hardcoding
+
+```python
+# Example: repo.py - Repository factory with singleton pattern
+from functools import lru_cache
+
+@lru_cache
+def get_user_repo() -> UserRepository:
+    """Get singleton UserRepository instance."""
+    db = MongoDB.get_db()
+    return UserRepository(db)
+```
+
+```python
+# Example: service.py - Service factory with singleton pattern
+from functools import lru_cache
+
+@lru_cache
+def get_crawler_service() -> SheetCrawlerService:
+    """Get singleton SheetCrawlerService instance."""
+    return SheetCrawlerService(
+        sheet_client=get_google_sheet_client(),
+        connection_repo=get_sheet_connection_repo(),
+        sync_state_repo=get_sheet_sync_state_repo(),
+        data_repo=get_sheet_data_repo(),
+    )
+```
+
+```python
+# Example: event_socket.py - Socket event constants
+class SheetSyncEvents:
+    """Socket events for sheet synchronization."""
+    STARTED = "sheet:sync:started"
+    COMPLETED = "sheet:sync:completed"
+    FAILED = "sheet:sync:failed"
+    PROGRESS = "sheet:sync:progress"
+```
 
 ## File Naming Conventions
 
