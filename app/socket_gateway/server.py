@@ -3,12 +3,18 @@
 import socketio
 
 from app.socket_gateway.auth import authenticate
+from app.socket_gateway.manager import get_server_manager
 
-# Socket.IO server instance
+# Get Redis manager (may be None if Redis not configured)
+client_manager = get_server_manager()
+
+# Socket.IO server instance with optional Redis manager
+# When client_manager is None, Socket.IO operates in local-only mode
 sio = socketio.AsyncServer(
     async_mode="asgi",
     # TODO 07/01/2026 Add allow orgin for verify domain
     cors_allowed_origins="*",  # Configure for production
+    client_manager=client_manager,
 )
 
 
