@@ -15,8 +15,8 @@ Implementation plan cho tính năng Cross-Process Socket Emit sử dụng python
     - Handle case when REDIS_URL is not configured (return None)
     - _Requirements: 1.1, 1.3, 2.1, 2.3, 6.1, 6.3_
 
-- [ ] 2. Update Socket.IO Server
-  - [ ] 2.1 Update server.py to use AsyncRedisManager
+- [x] 2. Update Socket.IO Server
+  - [x] 2.1 Update server.py to use AsyncRedisManager
     - Import `get_server_manager` from manager module
     - Pass manager as `client_manager` parameter to AsyncServer
     - Handle None manager (local-only mode)
