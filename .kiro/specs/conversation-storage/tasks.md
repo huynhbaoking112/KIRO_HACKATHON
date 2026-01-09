@@ -25,8 +25,8 @@ Implement hệ thống lưu trữ conversations và messages cho AI chat với M
     - **Property 10: Model Validation Completeness**
     - **Validates: Requirements 3.3, 5.1, 6.1-6.6**
 
-- [ ] 2. Implement Conversation Repository
-  - [ ] 2.1 Create `app/repo/conversation_repo.py`
+- [-] 2. Implement Conversation Repository
+  - [x] 2.1 Create `app/repo/conversation_repo.py`
     - Implement create() method
     - Implement get_by_id() method với soft delete filter
     - Implement get_by_user() method với pagination và ordering
@@ -57,7 +57,7 @@ Implement hệ thống lưu trữ conversations và messages cho AI chat với M
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 5. Implement Conversation Service
-  - [ ] 5.1 Create `app/services/conversation_service.py`
+  - [ ] 5.1 Create `app/services/ai/conversation_service.py`
     - Implement create_conversation() với auto title generation
     - Implement add_message() với conversation stats update
     - Implement get_messages()
