@@ -70,8 +70,8 @@ Implement hệ thống lưu trữ conversations và messages cho AI chat với M
     - **Property 9: LangChain Message Conversion Round-Trip**
     - **Validates: Requirements 2.6, 4.1, 4.2, 5.4**
 
-- [ ] 6. Create MongoDB Indexes
-  - [ ] 6.1 Create index setup script hoặc startup hook
+- [x] 6. Create MongoDB Indexes
+  - [x] 6.1 Create index setup script hoặc startup hook
     - Create index cho conversations: { "user_id": 1, "deleted_at": 1, "updated_at": -1 }
     - Create index cho messages: { "conversation_id": 1, "deleted_at": 1, "created_at": 1 }
     - _Requirements: 1.2, 1.6, 2.2_
