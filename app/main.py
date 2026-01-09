@@ -19,6 +19,7 @@ async def lifespan(_app: FastAPI):
     """Lifespan context manager for startup and shutdown events."""
     # Startup
     await MongoDB.connect(settings.MONGODB_URI, settings.MONGODB_DB_NAME)
+    await MongoDB.create_indexes()
     await RedisClient.connect(settings.REDIS_URL)
     yield
     # Shutdown
