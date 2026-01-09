@@ -56,8 +56,8 @@ Implement hệ thống lưu trữ conversations và messages cho AI chat với M
 - [ ] 4. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Implement Conversation Service
-  - [ ] 5.1 Create `app/services/ai/conversation_service.py`
+- [x] 5. Implement Conversation Service
+  - [x] 5.1 Create `app/services/ai/conversation_service.py`
     - Implement create_conversation() với auto title generation
     - Implement add_message() với conversation stats update
     - Implement get_messages()

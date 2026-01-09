@@ -3,6 +3,8 @@
 from functools import lru_cache
 
 from app.common.repo import (
+    get_conversation_repo,
+    get_message_repo,
     get_sheet_connection_repo,
     get_sheet_data_repo,
     get_sheet_sync_state_repo,
@@ -11,6 +13,7 @@ from app.common.repo import (
 from app.infrastructure.google_sheets.client import GoogleSheetClient
 from app.infrastructure.redis.client import RedisClient
 from app.infrastructure.redis.redis_queue import RedisQueue
+from app.services.ai.conversation_service import ConversationService
 from app.services.auth.auth_service import AuthService
 from app.services.sheet_crawler.crawler_service import SheetCrawlerService
 
@@ -60,3 +63,15 @@ def get_crawler_service() -> SheetCrawlerService:
         sync_state_repo=get_sheet_sync_state_repo(),
         data_repo=get_sheet_data_repo(),
     )
+
+
+@lru_cache
+def get_conversation_service() -> ConversationService:
+    """Get singleton ConversationService instance.
+
+    Returns:
+        ConversationService instance with repositories
+    """
+    conversation_repo = get_conversation_repo()
+    message_repo = get_message_repo()
+    return ConversationService(conversation_repo, message_repo)
