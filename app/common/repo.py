@@ -8,6 +8,7 @@ from app.repo.sheet_connection_repo import SheetConnectionRepository
 from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
 from app.repo.sheet_data_repo import SheetDataRepository
 from app.repo.conversation_repo import ConversationRepository
+from app.repo.message_repo import MessageRepository
 
 
 @lru_cache
@@ -63,3 +64,14 @@ def get_conversation_repo() -> ConversationRepository:
     """
     db = MongoDB.get_db()
     return ConversationRepository(db)
+
+
+@lru_cache
+def get_message_repo() -> MessageRepository:
+    """Get singleton MessageRepository instance.
+
+    Returns:
+        MessageRepository instance with database connection
+    """
+    db = MongoDB.get_db()
+    return MessageRepository(db)

@@ -40,8 +40,8 @@ Implement hệ thống lưu trữ conversations và messages cho AI chat với M
     - **Property 4: Conversation Ordering**
     - **Validates: Requirements 1.2, 1.4, 1.5, 1.6**
 
-- [ ] 3. Implement Message Repository
-  - [ ] 3.1 Create `app/repo/message_repo.py`
+- [-] 3. Implement Message Repository
+  - [x] 3.1 Create `app/repo/message_repo.py`
     - Implement create() method với attachments support
     - Implement get_by_conversation() method với ordering
     - Implement update() method cho streaming support
