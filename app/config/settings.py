@@ -41,6 +41,10 @@ class Settings(BaseSettings):
     # Sheet Crawler
     SHEET_SYNC_QUEUE_NAME: str = "sheet_sync_tasks"
 
+    # OpenAI
+    OPENAI_API_KEY: str  # Required for LLM operations
+    OPENAI_API_BASE: str | None = None  # Optional custom API base URL
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -27,3 +27,7 @@ redis
 
 # LangChain
 langchain-core
+langchain-community
+langchain-openai
+langchain
+langgraph
