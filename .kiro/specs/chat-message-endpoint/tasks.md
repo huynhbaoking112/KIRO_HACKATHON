@@ -16,11 +16,11 @@ Implement endpoint cho phép user gửi message và nhận AI response qua Socke
     - Enable streaming by default
     - _Requirements: 4.1, 4.2, 4.3_
 
-- [ ] 2. Implement Socket Events và Schemas
-  - [ ] 2.1 Update `app/common/event_socket.py`
+- [x] 2. Implement Socket Events và Schemas
+  - [x] 2.1 Update `app/common/event_socket.py`
     - Add ChatEvents class với 6 event constants
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
-  - [ ] 2.2 Create `app/domain/schemas/chat.py`
+  - [x] 2.2 Create `app/domain/schemas/chat.py`
     - Implement SendMessageRequest schema
     - Implement SendMessageResponse schema
     - Implement socket payload schemas (optional, for documentation)
