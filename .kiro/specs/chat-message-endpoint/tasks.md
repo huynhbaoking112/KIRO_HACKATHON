@@ -26,21 +26,21 @@ Implement endpoint cho phép user gửi message và nhận AI response qua Socke
     - Implement socket payload schemas (optional, for documentation)
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 3. Implement Default Agent
-  - [ ] 3.1 Create `app/agents/implementations/default_agent/__init__.py`
+- [x] 3. Implement Default Agent
+  - [x] 3.1 Create `app/agents/implementations/default_agent/__init__.py`
     - Empty init file for package
-  - [ ] 3.2 Create `app/agents/implementations/default_agent/tools.py`
+  - [x] 3.2 Create `app/agents/implementations/default_agent/tools.py`
     - Implement calculator tool with safe expression evaluation
     - Only allow digits and basic operators
     - Return error message for invalid expressions
     - _Requirements: 3.4, 3.5_
-  - [ ] 3.3 Create `app/agents/implementations/default_agent/agent.py`
+  - [x] 3.3 Create `app/agents/implementations/default_agent/agent.py`
     - Implement create_default_agent() function
     - Use LangGraph create_react_agent
     - Include calculator tool
     - Configure system prompt
     - _Requirements: 3.1, 3.2, 3.3_
-  - [ ] 3.4 Update `app/agents/registry.py`
+  - [x] 3.4 Update `app/agents/registry.py`
     - Implement get_default_agent() with lru_cache
     - _Requirements: 5.1, 5.2_
 
