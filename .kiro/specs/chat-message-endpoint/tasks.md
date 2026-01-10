@@ -69,8 +69,8 @@ Implement endpoint cho phép user gửi message và nhận AI response qua Socke
     - Create factory function with lru_cache
     - _Requirements: 5.1_
 
-- [ ] 6. Implement Chat API Endpoint
-  - [ ] 6.1 Create `app/api/v1/ai/chat.py`
+- [x] 6. Implement Chat API Endpoint
+  - [x] 6.1 Create `app/api/v1/ai/chat.py`
     - Create router with prefix="/chat"
     - Implement POST /messages endpoint
     - Validate request
@@ -79,7 +79,7 @@ Implement endpoint cho phép user gửi message và nhận AI response qua Socke
     - Add background task
     - Return SendMessageResponse
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
-  - [ ] 6.2 Register router in `app/api/v1/__init__.py` or main router
+  - [x] 6.2 Register router in `app/api/v1/__init__.py` or main router
     - Include chat router in API v1
     - _Requirements: 1.1_
 
