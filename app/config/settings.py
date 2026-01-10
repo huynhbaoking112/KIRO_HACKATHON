@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str  # Required for LLM operations
     OPENAI_API_BASE: str | None = None  # Optional custom API base URL
 
+    # CORS
+    CORS_ORIGINS: list[str] = ["http://localhost:5173"]  # Frontend origins
+
 
 @lru_cache
 def get_settings() -> Settings:
