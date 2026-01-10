@@ -48,13 +48,13 @@ Implement endpoint cho phép user gửi message và nhận AI response qua Socke
   - Ensure agent can be created and has calculator tool
   - Test calculator tool with sample expressions
 
-- [ ] 5. Implement Chat Service
-  - [ ] 5.1 Update `app/services/ai/chat_service.py`
+- [x] 5. Implement Chat Service
+  - [x] 5.1 Update `app/services/ai/chat_service.py`
     - Implement ChatService class
     - Inject ConversationService dependency
     - Implement send_message() method
     - _Requirements: 1.2, 1.3, 1.4_
-  - [ ] 5.2 Implement process_agent_response() method
+  - [x] 5.2 Implement process_agent_response() method
     - Load conversation history as LangChain messages
     - Emit MESSAGE_STARTED event
     - Call agent.astream_events() with version="v2"
@@ -65,7 +65,7 @@ Implement endpoint cho phép user gửi message và nhận AI response qua Socke
     - Emit MESSAGE_COMPLETED event
     - Handle errors → emit MESSAGE_FAILED
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 6.7_
-  - [ ] 5.3 Add get_chat_service() to `app/common/service.py`
+  - [x] 5.3 Add get_chat_service() to `app/common/service.py`
     - Create factory function with lru_cache
     - _Requirements: 5.1_
 
