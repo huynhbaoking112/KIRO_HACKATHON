@@ -1,113 +1,167 @@
 ---
-description: Technical code review for quality and bugs that runs pre-commit
+description: Comprehensive hackathon submission review based on official judging criteria
 ---
 
-Perform technical code review on recently changed files.
+Perform comprehensive review of hackathon submission based on the official Kiro Hackathon judging criteria.
 
-## Core Principles
+## Judging Criteria (100 Points Total)
 
-Review Philosophy:
+1. **Application Quality (40 points)**
+   - Functionality & Completeness (15 points)
+   - Real-World Value (15 points) 
+   - Code Quality (10 points)
 
-- Simplicity is the ultimate sophistication - every line should justify its existence
-- Code is read far more often than it's written - optimize for readability
-- The best code is often the code you don't write
-- Elegance emerges from clarity of intent and economy of expression
+2. **Kiro CLI Usage (20 points)**
+   - Effective Use of Features (10 points)
+   - Custom Commands Quality (7 points)
+   - Workflow Innovation (3 points)
 
-## What to Review
+3. **Documentation (20 points)**
+   - Completeness (9 points)
+   - Clarity (7 points)
+   - Process Transparency (4 points)
 
-Start by gathering codebase context to understand the codebase standards and patterns.
+4. **Innovation (15 points)**
+   - Uniqueness (8 points)
+   - Creative Problem-Solving (7 points)
 
-Start by examining:
+5. **Presentation (5 points)**
+   - Demo Video (3 points)
+   - README (2 points)
 
-- README.md
-- PRD.md if found
-- Key files in the /core module
-- Documented standards in the /docs directory
+## Review Process
 
-After you have a good understanding
-
-Run these commands:
-
+### 1. Project Discovery
 ```bash
-git status
-git diff HEAD
-git diff --stat HEAD
+find . -name "README*" -o -name "*.md" | head -10
+ls -la
+tree -L 2 -I 'node_modules|__pycache__|.git|dist|build' || ls -la
 ```
 
-Then check the list of new files:
+### 2. Required Documentation Check
+Look for:
+- `.kiro/steering/` - Global rules, coding standards, architecture principles
+- `.kiro/prompts/` - Custom Kiro commands, reusable prompts, workflows  
+- `DEVLOG.md` - Timeline, decisions, challenges, time spent
+- `README.md` - Setup instructions and project overview
 
-```bash
-git ls-files --others --exclude-standard
-```
+**Evaluate README.md and DEVLOG.md quality:**
+- README: Clear setup instructions, project description, usage examples
+- DEVLOG: Development timeline, decision rationale, challenges faced, time tracking
 
-Read each new file in its entirety. Read each changed file in its entirety (not just the diff) to understand full context.
+### 3. Kiro CLI Integration Analysis
+Examine:
+- `.kiro/` directory structure and contents
+- Custom prompts and their quality
+- Steering documents and their comprehensiveness
+- Evidence of Kiro CLI usage throughout development
 
-For each changed file or new file, analyze for:
+### 4. Application Assessment
+Analyze:
+- Core functionality and completeness
+- Real-world applicability and value proposition
+- Code architecture and quality
+- Error handling and edge cases
 
-1. **Logic Errors**
-   - Off-by-one errors
-   - Incorrect conditionals
-   - Missing error handling
-   - Race conditions
+### 5. Innovation Evaluation
+Consider:
+- Uniqueness of approach or solution
+- Creative use of Kiro CLI features
+- Novel problem-solving methods
+- Technical creativity
 
-2. **Security Issues**
-   - SQL injection vulnerabilities
-   - XSS vulnerabilities
-   - Insecure data handling
-   - Exposed secrets or API keys
+## Scoring Framework
 
-3. **Performance Problems**
-   - N+1 queries
-   - Inefficient algorithms
-   - Memory leaks
-   - Unnecessary computations
-
-4. **Code Quality**
-   - Violations of DRY principle
-   - Overly complex functions
-   - Poor naming
-   - Missing type hints/annotations
-
-5. **Adherence to Codebase Standards and Existing Patterns**
-   - Adherence to standards documented in the /docs directory
-   - Linting, typing, and formatting standards
-   - Logging standards
-   - Testing standards
-
-## Verify Issues Are Real
-
-- Run specific tests for issues found
-- Confirm type errors are legitimate
-- Validate security concerns with context
+For each criterion, provide:
+- **Score**: X/Y points
+- **Justification**: Specific evidence and reasoning
+- **Strengths**: What was done well
+- **Areas for Improvement**: Specific suggestions
 
 ## Output Format
 
-Save a new file to `.agents/code-reviews/[appropriate-name].md`
+# Hackathon Submission Review
 
-**Stats:**
+## Overall Score: X/100
 
-- Files Modified: 0
-- Files Added: 0
-- Files Deleted: 0
-- New lines: 0
-- Deleted lines: 0
+## Detailed Scoring
 
-**For each issue found:**
+### Application Quality (X/40)
 
-```
-severity: critical|high|medium|low
-file: path/to/file.py
-line: 42
-issue: [one-line description]
-detail: [explanation of why this is a problem]
-suggestion: [how to fix it]
-```
+**Functionality & Completeness (X/15)**
+- Score justification
+- Key strengths
+- Missing functionality or issues
 
-If no issues found: "Code review passed. No technical issues detected."
+**Real-World Value (X/15)**  
+- Problem being solved
+- Target audience and use case
+- Practical applicability
 
-## Important
+**Code Quality (X/10)**
+- Architecture and organization
+- Error handling
+- Code clarity and maintainability
 
-- Be specific (line numbers, not vague complaints)
-- Focus on real bugs, not style
-- Suggest fixes, don't just complain
-- Flag security issues as CRITICAL
+### Kiro CLI Usage (X/20)
+
+**Effective Use of Features (X/10)**
+- Kiro CLI integration depth
+- Feature utilization assessment
+- Workflow effectiveness
+
+**Custom Commands Quality (X/7)**
+- Prompt quality and usefulness
+- Command organization
+- Reusability and clarity
+
+**Workflow Innovation (X/3)**
+- Creative Kiro CLI usage
+- Novel workflow approaches
+
+### Documentation (X/20)
+
+**Completeness (X/9)**
+- Required documentation presence
+- Coverage of all aspects
+
+**Clarity (X/7)**
+- Writing quality and organization
+- Ease of understanding
+
+**Process Transparency (X/4)**
+- Development process visibility
+- Decision documentation
+
+### Innovation (X/15)
+
+**Uniqueness (X/8)**
+- Originality of concept
+- Differentiation from common solutions
+
+**Creative Problem-Solving (X/7)**
+- Novel approaches
+- Technical creativity
+
+### Presentation (X/5)
+
+**Demo Video (X/3)**
+- Video quality and clarity
+- Effective demonstration
+
+**README (X/2)**
+- Setup instructions clarity
+- Project overview quality
+
+## Summary
+
+**Top Strengths:**
+- [Key strengths]
+
+**Critical Issues:**
+- [Major problems that impact scoring]
+
+**Recommendations:**
+- [Specific improvement suggestions]
+
+**Hackathon Readiness:** [Ready/Needs Work/Major Issues]
