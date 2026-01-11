@@ -104,8 +104,8 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - Update `app/api/v1/router.py` to include analytics router
     - _Requirements: 2.1_
 
-- [ ] 6. Integrate Cache Invalidation
-  - [ ] 6.1 Update crawler service for cache invalidation
+- [x] 6. Integrate Cache Invalidation
+  - [x] 6.1 Update crawler service for cache invalidation
     - Update `app/services/sheet_crawler/crawler_service.py`
     - Call `cache_manager.invalidate(connection_id)` after successful sync
     - _Requirements: 7.3_

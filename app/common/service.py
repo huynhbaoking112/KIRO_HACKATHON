@@ -53,6 +53,17 @@ def get_google_sheet_client() -> GoogleSheetClient:
 
 
 @lru_cache
+def get_analytics_cache_manager() -> AnalyticsCacheManager:
+    """Get singleton AnalyticsCacheManager instance.
+
+    Returns:
+        AnalyticsCacheManager instance with Redis client
+    """
+    client = RedisClient.get_client()
+    return AnalyticsCacheManager(client)
+
+
+@lru_cache
 def get_crawler_service() -> SheetCrawlerService:
     """Get singleton SheetCrawlerService instance.
 
@@ -64,6 +75,7 @@ def get_crawler_service() -> SheetCrawlerService:
         connection_repo=get_sheet_connection_repo(),
         sync_state_repo=get_sheet_sync_state_repo(),
         data_repo=get_sheet_data_repo(),
+        cache_manager=get_analytics_cache_manager(),
     )
 
 
@@ -77,17 +89,6 @@ def get_conversation_service() -> ConversationService:
     conversation_repo = get_conversation_repo()
     message_repo = get_message_repo()
     return ConversationService(conversation_repo, message_repo)
-
-
-@lru_cache
-def get_analytics_cache_manager() -> AnalyticsCacheManager:
-    """Get singleton AnalyticsCacheManager instance.
-
-    Returns:
-        AnalyticsCacheManager instance with Redis client
-    """
-    client = RedisClient.get_client()
-    return AnalyticsCacheManager(client)
 
 
 @lru_cache
