@@ -14,6 +14,8 @@ from app.infrastructure.google_sheets.client import GoogleSheetClient
 from app.infrastructure.redis.client import RedisClient
 from app.infrastructure.redis.redis_queue import RedisQueue
 from app.services.ai.conversation_service import ConversationService
+from app.services.analytics.analytics_service import AnalyticsService
+from app.services.analytics.cache_manager import AnalyticsCacheManager
 from app.services.auth.auth_service import AuthService
 from app.services.sheet_crawler.crawler_service import SheetCrawlerService
 
@@ -75,3 +77,28 @@ def get_conversation_service() -> ConversationService:
     conversation_repo = get_conversation_repo()
     message_repo = get_message_repo()
     return ConversationService(conversation_repo, message_repo)
+
+
+@lru_cache
+def get_analytics_cache_manager() -> AnalyticsCacheManager:
+    """Get singleton AnalyticsCacheManager instance.
+
+    Returns:
+        AnalyticsCacheManager instance with Redis client
+    """
+    client = RedisClient.get_client()
+    return AnalyticsCacheManager(client)
+
+
+@lru_cache
+def get_analytics_service() -> AnalyticsService:
+    """Get singleton AnalyticsService instance.
+
+    Returns:
+        AnalyticsService instance with all dependencies
+    """
+    return AnalyticsService(
+        connection_repo=get_sheet_connection_repo(),
+        data_repo=get_sheet_data_repo(),
+        cache_manager=get_analytics_cache_manager(),
+    )

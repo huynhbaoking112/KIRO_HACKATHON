@@ -25,15 +25,15 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - Add `get_analytics_repo` factory function
     - _Requirements: 2.1_
 
-- [ ] 3. Implement Service Layer
-  - [ ] 3.1 Create sheet type detector
+- [x] 3. Implement Service Layer
+  - [x] 3.1 Create sheet type detector
     - Create `app/services/analytics/__init__.py`
     - Create `app/services/analytics/sheet_type_detector.py`
     - Implement `detect_sheet_type(sheet_name: str) -> SheetType` function
     - Match sheet_name case-insensitively to detect type
     - Default to "orders" if no match
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
-  - [ ] 3.2 Create cache manager
+  - [x] 3.2 Create cache manager
     - Create `app/services/analytics/cache_manager.py`
     - Implement `AnalyticsCacheManager` with `get`, `set`, `invalidate` methods
     - Implement cache key building with params hash
@@ -42,7 +42,7 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - **Property 11: Cache Key Uniqueness**
     - **Property 12: Cache Invalidation Completeness**
     - **Validates: Requirements 7.2, 7.3**
-  - [ ] 3.4 Create analytics strategies
+  - [x] 3.4 Create analytics strategies
     - Create `app/services/analytics/strategies.py`
     - Implement `BaseAnalyticsStrategy` abstract class
     - Implement `OrdersAnalyticsStrategy` with summary, time-series, distribution, top pipelines
@@ -55,7 +55,7 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - **Property 5: Distribution Percentage Sum**
     - **Property 6: Top N Ordering**
     - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 4.5, 5.3, 5.4, 5.5**
-  - [ ] 3.6 Create analytics service
+  - [x] 3.6 Create analytics service
     - Create `app/services/analytics/analytics_service.py`
     - Implement `AnalyticsService` class
     - Use `detect_sheet_type` to determine sheet type from connection's sheet_name
@@ -74,7 +74,7 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - **Property 9: Sort Order Correctness**
     - **Property 10: Pagination Correctness**
     - **Validates: Requirements 2.5, 3.1, 3.4, 3.5, 3.6, 5.7, 6.1, 6.6, 6.9**
-  - [ ] 3.8 Update common/service.py
+  - [x] 3.8 Update common/service.py
     - Add `get_analytics_service` factory function
     - Add `get_analytics_cache_manager` factory function
     - _Requirements: 2.1_
