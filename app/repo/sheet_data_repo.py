@@ -164,9 +164,9 @@ class SheetDataRepository:
         if date_field and (date_from or date_to):
             date_query: dict = {}
             if date_from:
-                date_query["$gte"] = date_from.isoformat()
+                date_query["$gte"] = datetime.combine(date_from, datetime.min.time())
             if date_to:
-                date_query["$lte"] = date_to.isoformat()
+                date_query["$lte"] = datetime.combine(date_to, datetime.max.time())
             query[f"data.{date_field}"] = date_query
 
         # Get total count

@@ -1,7 +1,7 @@
 """Analytics strategies for different sheet types."""
 
 from abc import ABC, abstractmethod
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
 from app.domain.schemas.analytics import SheetType
@@ -80,9 +80,9 @@ class OrdersAnalyticsStrategy(BaseAnalyticsStrategy):
         if date_from or date_to:
             date_query: dict = {}
             if date_from:
-                date_query["$gte"] = date_from.isoformat()
+                date_query["$gte"] = datetime.combine(date_from, datetime.min.time())
             if date_to:
-                date_query["$lte"] = date_to.isoformat()
+                date_query["$lte"] = datetime.combine(date_to, datetime.max.time())
             match_stage["data.order_date"] = date_query
 
         return [
@@ -136,7 +136,7 @@ class OrdersAnalyticsStrategy(BaseAnalyticsStrategy):
         granularity: str,
         metrics: str,
     ) -> list[dict]:
-        """Return aggregation pipeline for time series data."""
+
         # Date format based on granularity
         date_formats = {
             "day": "%Y-%m-%d",
@@ -146,11 +146,15 @@ class OrdersAnalyticsStrategy(BaseAnalyticsStrategy):
         }
         date_format = date_formats.get(granularity, "%Y-%m-%d")
 
+        # Convert date to datetime for MongoDB comparison
+        date_from_dt = datetime.combine(date_from, datetime.min.time())
+        date_to_dt = datetime.combine(date_to, datetime.max.time())
+
         match_stage = {
             "connection_id": connection_id,
             "data.order_date": {
-                "$gte": date_from.isoformat(),
-                "$lte": date_to.isoformat(),
+                "$gte": date_from_dt,
+                "$lte": date_to_dt,
             },
         }
 
@@ -159,7 +163,7 @@ class OrdersAnalyticsStrategy(BaseAnalyticsStrategy):
             "_id": {
                 "$dateToString": {
                     "format": date_format,
-                    "date": {"$toDate": "$data.order_date"},
+                    "date": "$data.order_date",
                 }
             },
         }
@@ -189,9 +193,9 @@ class OrdersAnalyticsStrategy(BaseAnalyticsStrategy):
         if date_from or date_to:
             date_query: dict = {}
             if date_from:
-                date_query["$gte"] = date_from.isoformat()
+                date_query["$gte"] = datetime.combine(date_from, datetime.min.time())
             if date_to:
-                date_query["$lte"] = date_to.isoformat()
+                date_query["$lte"] = datetime.combine(date_to, datetime.max.time())
             match_stage["data.order_date"] = date_query
 
         return [
@@ -241,9 +245,9 @@ class OrdersAnalyticsStrategy(BaseAnalyticsStrategy):
         if date_from or date_to:
             date_query: dict = {}
             if date_from:
-                date_query["$gte"] = date_from.isoformat()
+                date_query["$gte"] = datetime.combine(date_from, datetime.min.time())
             if date_to:
-                date_query["$lte"] = date_to.isoformat()
+                date_query["$lte"] = datetime.combine(date_to, datetime.max.time())
             match_stage["data.order_date"] = date_query
 
         # Build group stage
