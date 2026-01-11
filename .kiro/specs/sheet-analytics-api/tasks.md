@@ -84,8 +84,8 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
   - Verify strategies return correct metrics for each sheet type
   - Ask the user if questions arise
 
-- [ ] 5. Implement API Layer
-  - [ ] 5.1 Create analytics router
+- [x] 5. Implement API Layer
+  - [x] 5.1 Create analytics router
     - Create `app/api/v1/analytics/__init__.py`
     - Create `app/api/v1/analytics/router.py`
     - Implement `GET /{connection_id}/summary` endpoint
@@ -100,7 +100,7 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - **Property 14: Date Range Validation**
     - **Property 15: Sheet Type Feature Restriction**
     - **Validates: Requirements 8.1, 8.2, 9.1, 3.7, 4.3, 5.8**
-  - [ ] 5.3 Register analytics router
+  - [x] 5.3 Register analytics router
     - Update `app/api/v1/router.py` to include analytics router
     - _Requirements: 2.1_
 
