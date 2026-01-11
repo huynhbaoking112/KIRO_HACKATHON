@@ -107,3 +107,85 @@ class SheetDataRepository:
         """
         result = await self.collection.delete_many({"connection_id": connection_id})
         return result.deleted_count
+
+    async def aggregate(self, pipeline: list[dict]) -> list[dict]:
+        """Execute aggregation pipeline.
+
+        Args:
+            pipeline: MongoDB aggregation pipeline stages
+
+        Returns:
+            List of aggregation results
+        """
+        cursor = self.collection.aggregate(pipeline)
+        return await cursor.to_list(length=None)
+
+    async def find_with_search(
+        self,
+        connection_id: str,
+        search: str | None,
+        search_fields: list[str],
+        date_field: str | None,
+        date_from: "date | None",
+        date_to: "date | None",
+        sort_by: str | None,
+        sort_order: int,
+        skip: int,
+        limit: int,
+    ) -> tuple[list[dict], int]:
+        """Find documents with search, filter, and pagination.
+
+        Args:
+            connection_id: Connection ID to filter by
+            search: Search query string (case-insensitive regex)
+            search_fields: List of fields to search in (without 'data.' prefix)
+            date_field: Field name for date filtering (without 'data.' prefix)
+            date_from: Start date for filtering
+            date_to: End date for filtering
+            sort_by: Field to sort by (without 'data.' prefix)
+            sort_order: Sort direction (1 for ascending, -1 for descending)
+            skip: Number of documents to skip
+            limit: Maximum number of documents to return
+
+        Returns:
+            Tuple of (list of documents, total count)
+        """
+        query: dict = {"connection_id": connection_id}
+
+        # Add search condition
+        if search and search_fields:
+            search_conditions = [
+                {f"data.{field}": {"$regex": search, "$options": "i"}}
+                for field in search_fields
+            ]
+            query["$or"] = search_conditions
+
+        # Add date filter
+        if date_field and (date_from or date_to):
+            date_query: dict = {}
+            if date_from:
+                date_query["$gte"] = date_from.isoformat()
+            if date_to:
+                date_query["$lte"] = date_to.isoformat()
+            query[f"data.{date_field}"] = date_query
+
+        # Get total count
+        total = await self.collection.count_documents(query)
+
+        # Build sort field
+        sort_field = f"data.{sort_by}" if sort_by else "row_number"
+
+        # Get paginated results
+        cursor = (
+            self.collection.find(query)
+            .sort(sort_field, sort_order)
+            .skip(skip)
+            .limit(limit)
+        )
+
+        results = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            results.append(doc)
+
+        return results, total

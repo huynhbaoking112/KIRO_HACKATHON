@@ -15,26 +15,26 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - Define `TimeSeriesResponse`, `DistributionResponse`, `TopResponse`, `DataResponse`
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 3.1, 4.1, 5.1, 6.9_
 
-- [ ] 2. Implement Repository Layer
-  - [ ] 2.1 Create analytics repository
+- [x] 2. Implement Repository Layer
+  - [x] 2.1 Create analytics repository
     - Create `app/repo/analytics_repo.py`
     - Implement `AnalyticsRepository` class with `aggregate` method
     - Implement `find_with_search` method for paginated search/filter
     - _Requirements: 2.1, 6.1, 6.6_
-  - [ ] 2.2 Update common/repo.py
+  - [x] 2.2 Update common/repo.py
     - Add `get_analytics_repo` factory function
     - _Requirements: 2.1_
 
 - [ ] 3. Implement Service Layer
   - [ ] 3.1 Create sheet type detector
-    - Create `app/services/business/analytics/__init__.py`
-    - Create `app/services/business/analytics/sheet_type_detector.py`
+    - Create `app/services/analytics/__init__.py`
+    - Create `app/services/analytics/sheet_type_detector.py`
     - Implement `detect_sheet_type(sheet_name: str) -> SheetType` function
     - Match sheet_name case-insensitively to detect type
     - Default to "orders" if no match
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
   - [ ] 3.2 Create cache manager
-    - Create `app/services/business/analytics/cache_manager.py`
+    - Create `app/services/analytics/cache_manager.py`
     - Implement `AnalyticsCacheManager` with `get`, `set`, `invalidate` methods
     - Implement cache key building with params hash
     - _Requirements: 7.1, 7.2, 7.3_
@@ -43,7 +43,7 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - **Property 12: Cache Invalidation Completeness**
     - **Validates: Requirements 7.2, 7.3**
   - [ ] 3.4 Create analytics strategies
-    - Create `app/services/business/analytics/strategies.py`
+    - Create `app/services/analytics/strategies.py`
     - Implement `BaseAnalyticsStrategy` abstract class
     - Implement `OrdersAnalyticsStrategy` with summary, time-series, distribution, top pipelines
     - Implement `OrderItemsAnalyticsStrategy` with summary, top pipelines
@@ -56,7 +56,7 @@ Implementation plan cho tính năng Sheet Analytics API với caching và strate
     - **Property 6: Top N Ordering**
     - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 4.5, 5.3, 5.4, 5.5**
   - [ ] 3.6 Create analytics service
-    - Create `app/services/business/analytics/analytics_service.py`
+    - Create `app/services/analytics/analytics_service.py`
     - Implement `AnalyticsService` class
     - Use `detect_sheet_type` to determine sheet type from connection's sheet_name
     - Implement `get_summary` method with caching
