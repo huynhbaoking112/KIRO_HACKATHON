@@ -13,6 +13,7 @@ from app.common.repo import (
 from app.infrastructure.google_sheets.client import GoogleSheetClient
 from app.infrastructure.redis.client import RedisClient
 from app.infrastructure.redis.redis_queue import RedisQueue
+from app.services.ai.chat_service import ChatService
 from app.services.ai.conversation_service import ConversationService
 from app.services.analytics.analytics_service import AnalyticsService
 from app.services.analytics.cache_manager import AnalyticsCacheManager
@@ -103,3 +104,13 @@ def get_analytics_service() -> AnalyticsService:
         data_repo=get_sheet_data_repo(),
         cache_manager=get_analytics_cache_manager(),
     )
+
+
+def get_chat_service() -> ChatService:
+    """Get singleton ChatService instance.
+
+    Returns:
+        ChatService instance with ConversationService dependency
+    """
+    conversation_service = get_conversation_service()
+    return ChatService(conversation_service)
