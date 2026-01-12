@@ -6,7 +6,7 @@ and notifying users via WebSocket.
 
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from app.domain.models.sheet_connection import SheetConnection, SheetSyncState
 from app.domain.schemas.sheet_crawler import (
@@ -26,6 +26,9 @@ from app.services.sheet_crawler.column_mapper import (
 )
 from app.common.event_socket import SheetSyncEvents
 from app.socket_gateway.worker_gateway import worker_gateway
+
+if TYPE_CHECKING:
+    from app.services.analytics.cache_manager import AnalyticsCacheManager
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +52,7 @@ class SheetCrawlerService:
     - Storing data in MongoDB
     - Updating sync state
     - Notifying users via WebSocket
+    - Invalidating analytics cache after successful sync
     """
 
     def __init__(
@@ -57,6 +61,7 @@ class SheetCrawlerService:
         connection_repo: SheetConnectionRepository,
         sync_state_repo: SheetSyncStateRepository,
         data_repo: SheetDataRepository,
+        cache_manager: Optional["AnalyticsCacheManager"] = None,
     ):
         """Initialize SheetCrawlerService.
 
@@ -65,11 +70,13 @@ class SheetCrawlerService:
             connection_repo: Repository for sheet connections
             sync_state_repo: Repository for sync states
             data_repo: Repository for sheet raw data
+            cache_manager: Optional analytics cache manager for invalidation
         """
         self.sheet_client = sheet_client
         self.connection_repo = connection_repo
         self.sync_state_repo = sync_state_repo
         self.data_repo = data_repo
+        self.cache_manager = cache_manager
         self.column_mapper = ColumnMapper()
 
     async def _emit_sync_started(self, user_id: str, connection_id: str) -> None:
@@ -249,6 +256,22 @@ class SheetCrawlerService:
                 status=SyncStatus.SUCCESS,
                 total_rows_synced=new_total_rows,
             )
+
+            # Invalidate analytics cache after successful sync (Requirement 7.3)
+            if self.cache_manager:
+                try:
+                    await self.cache_manager.invalidate(connection_id)
+                    logger.debug(
+                        "Invalidated analytics cache for connection %s",
+                        connection_id,
+                    )
+                except Exception as e:
+                    # Log but don't fail sync if cache invalidation fails
+                    logger.warning(
+                        "Failed to invalidate analytics cache for connection %s: %s",
+                        connection_id,
+                        e,
+                    )
 
             # Notify sync completed
             await self._emit_sync_completed(
