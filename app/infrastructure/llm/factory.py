@@ -11,6 +11,7 @@ def get_chat_openai(
     model: str = "gpt-5.2",
     temperature: float = 0.7,
     streaming: bool = True,
+    max_tokens: int = 2048,
     base_url: str | None = None,
 ) -> ChatOpenAI:
     """Create ChatOpenAI instance with configurable parameters.
@@ -30,6 +31,7 @@ def get_chat_openai(
         api_key=settings.OPENAI_API_KEY,
         base_url=api_base,
         model=model,
+        max_tokens=max_tokens,
         temperature=temperature,
         streaming=streaming,
     )

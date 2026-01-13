@@ -1,1 +1,1 @@
-# Graphs module
+# LangGraph workflows package

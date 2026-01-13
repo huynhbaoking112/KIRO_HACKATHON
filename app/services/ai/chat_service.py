@@ -4,15 +4,17 @@ Provides business logic for:
 - Sending user messages and creating conversations
 - Processing agent responses with streaming via Socket.IO
 - Managing conversation history for AI context
+- Routing to appropriate handlers via ChatWorkflow
 """
 
 import logging
 from typing import Optional
 
-from app.agents.registry import get_default_agent
 from app.common.event_socket import ChatEvents
 from app.domain.models.message import MessageMetadata, MessageRole
+from app.graphs.registry import get_chat_workflow
 from app.services.ai.conversation_service import ConversationService
+from app.services.ai.data_query_service import DataQueryService
 from app.socket_gateway import gateway
 
 logger = logging.getLogger(__name__)
@@ -24,17 +26,25 @@ class ChatService:
     Handles:
     - Saving user messages to conversations
     - Creating new conversations when needed
-    - Processing agent responses with streaming
+    - Processing agent responses with ChatWorkflow
     - Emitting socket events for real-time updates
+
+    Requirements: 10.1, 10.2, 10.3, 10.4, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6
     """
 
-    def __init__(self, conversation_service: ConversationService):
+    def __init__(
+        self,
+        conversation_service: ConversationService,
+        data_query_service: DataQueryService,
+    ):
         """Initialize ChatService with dependencies.
 
         Args:
             conversation_service: Service for conversation/message operations
+            data_query_service: Service for querying user's sheet data
         """
         self.conversation_service = conversation_service
+        self.data_query_service = data_query_service
 
     async def send_message(
         self,
@@ -77,17 +87,25 @@ class ChatService:
         user_id: str,
         conversation_id: str,
     ) -> None:
-        """Process agent response and stream via socket events.
+        """Process agent response using ChatWorkflow and stream via socket events.
 
         This method is designed to run as a background task.
-        It loads conversation history, calls the agent with streaming,
-        and emits socket events for each token/tool call.
+        It loads conversation history and user connections, runs the ChatWorkflow.
+        Token streaming and tool events are emitted directly from workflow nodes.
+
+        The workflow:
+        1. Emit MESSAGE_STARTED event
+        2. Load user's sheet connections for data queries
+        3. Load conversation history as LangChain messages
+        4. Run ChatWorkflow (nodes emit token/tool events directly)
+        5. Save assistant response to database
+        6. Emit MESSAGE_COMPLETED or MESSAGE_FAILED event
 
         Args:
             user_id: ID of the user (for socket room targeting)
             conversation_id: ID of the conversation to process
 
-        Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 6.7
+        Requirements: 10.1, 10.2, 10.3, 10.4, 11.1, 11.5, 11.6
         """
         try:
             # Emit MESSAGE_STARTED event
@@ -97,72 +115,39 @@ class ChatService:
                 data={"conversation_id": conversation_id},
             )
 
+            # Load user's sheet connections with schemas
+            user_connections = await self.data_query_service.get_user_connections(
+                user_id=user_id,
+            )
+
             # Load conversation history as LangChain messages
             messages = await self.conversation_service.get_langchain_messages(
                 conversation_id=conversation_id,
             )
 
-            # Get the default agent
-            agent = get_default_agent()
+            # Create ChatWorkflow from registry
+            graph = get_chat_workflow(user_connections=user_connections)
 
-            # Stream agent response
-            full_content = ""
-            async for event in agent.astream_events(
-                {"messages": messages},
-                version="v2",
-            ):
-                event_kind = event.get("event")
+            # Prepare initial state
+            initial_state = {
+                "messages": messages,
+                "user_id": user_id,
+                "conversation_id": conversation_id,
+                "user_connections": user_connections,
+                "tool_calls": [],
+            }
 
-                # Handle token streaming from chat model
-                if event_kind == "on_chat_model_stream":
-                    chunk = event.get("data", {}).get("chunk")
-                    if chunk and hasattr(chunk, "content") and chunk.content:
-                        token = chunk.content
-                        full_content += token
-                        await gateway.emit_to_user(
-                            user_id=user_id,
-                            event=ChatEvents.MESSAGE_TOKEN,
-                            data={
-                                "conversation_id": conversation_id,
-                                "token": token,
-                            },
-                        )
+            # Run workflow - nodes emit Socket.IO events directly
+            result = await graph.ainvoke(initial_state)
 
-                # Handle tool start
-                elif event_kind == "on_tool_start":
-                    tool_name = event.get("name", "")
-                    run_id = event.get("run_id", "")
-                    await gateway.emit_to_user(
-                        user_id=user_id,
-                        event=ChatEvents.MESSAGE_TOOL_START,
-                        data={
-                            "conversation_id": conversation_id,
-                            "tool_name": tool_name,
-                            "tool_call_id": run_id,
-                        },
-                    )
-
-                # Handle tool end
-                elif event_kind == "on_tool_end":
-                    run_id = event.get("run_id", "")
-                    output = event.get("data", {}).get("output", "")
-                    # Convert output to string if it's not already
-                    result = str(output) if output else ""
-                    await gateway.emit_to_user(
-                        user_id=user_id,
-                        event=ChatEvents.MESSAGE_TOOL_END,
-                        data={
-                            "conversation_id": conversation_id,
-                            "tool_call_id": run_id,
-                            "result": result,
-                        },
-                    )
+            # Get response from workflow result
+            response_content = result.get("agent_response", "")
 
             # Save assistant message to database
             assistant_message = await self.conversation_service.add_message(
                 conversation_id=conversation_id,
                 role=MessageRole.ASSISTANT,
-                content=full_content,
+                content=response_content,
                 metadata=MessageMetadata(),
             )
 
@@ -173,7 +158,7 @@ class ChatService:
                 data={
                     "conversation_id": conversation_id,
                     "message_id": assistant_message.id,
-                    "content": full_content,
+                    "content": response_content,
                     "metadata": None,
                 },
             )

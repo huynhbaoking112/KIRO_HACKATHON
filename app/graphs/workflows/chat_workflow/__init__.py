@@ -1,1 +1,1 @@
-# Chat workflow module
+# Chat workflow package
