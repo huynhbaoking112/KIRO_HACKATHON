@@ -50,27 +50,27 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
 - [ ] 3. Checkpoint - Ensure service layer tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Implement Data Agent Tools
-  - [ ] 4.1 Create get_data_schema tool
+- [x] 4. Implement Data Agent Tools
+  - [x] 4.1 Create get_data_schema tool
     - Create `app/agents/implementations/data_agent/__init__.py`
     - Create `app/agents/implementations/data_agent/tools.py`
     - Implement `create_get_data_schema_tool()` factory function
     - Return connection names, field names, data types, sample values
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-  - [ ] 4.2 Create aggregate_data tool
+  - [x] 4.2 Create aggregate_data tool
     - Implement `create_aggregate_data_tool()` factory function
     - Support operations: sum, count, avg, min, max
     - Support filters, group_by, date_field, date_from, date_to parameters
     - Return results as JSON string
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [ ] 4.3 Create get_top_items tool
+  - [x] 4.3 Create get_top_items tool
     - Implement `create_get_top_items_tool()` factory function
     - Support sort_field, sort_order, limit, group_by, aggregate_field, filters
     - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-  - [ ] 4.4 Create compare_periods tool
+  - [x] 4.4 Create compare_periods tool
     - Implement `create_compare_periods_tool()` factory function
     - Calculate period1_value, period2_value, difference, percentage_change
     - Support sum, count, avg operations
@@ -80,7 +80,7 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 7: Period Comparison Calculation**
     - **Validates: Requirements 7.2, 7.3**
 
-  - [ ] 4.6 Create execute_aggregation tool
+  - [x] 4.6 Create execute_aggregation tool
     - Implement `create_execute_aggregation_tool()` factory function
     - Integrate PipelineValidator for validation
     - Execute validated pipeline via DataQueryService
