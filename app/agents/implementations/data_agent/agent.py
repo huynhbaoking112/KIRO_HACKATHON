@@ -95,6 +95,7 @@ def create_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGr
     llm = get_chat_openai(
         temperature=0.3,  # Lower temperature for more consistent data queries
         streaming=True,
+        max_tokens=4096,
     )
 
     # Create tools bound to user's connections

@@ -101,14 +101,14 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
 - [ ] 6. Checkpoint - Ensure agent and tools tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 7. Implement Workflow Nodes
-  - [ ] 7.1 Create ChatWorkflowState
+- [x] 7. Implement Workflow Nodes
+  - [x] 7.1 Create ChatWorkflowState
     - Create `app/graphs/workflows/chat_workflow/__init__.py`
     - Create `app/graphs/workflows/chat_workflow/state.py`
     - Define ChatWorkflowState TypedDict with all required fields
     - _Requirements: 14.1_
 
-  - [ ] 7.2 Create intent_classifier node
+  - [x] 7.2 Create intent_classifier node
     - Create `app/graphs/workflows/chat_workflow/nodes/__init__.py`
     - Create `app/graphs/workflows/chat_workflow/nodes/intent_classifier.py`
     - Implement `intent_classifier_node()` using LLM with INTENT_CLASSIFIER_PROMPT
@@ -119,20 +119,20 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 1: Intent Classification Completeness**
     - **Validates: Requirements 1.1**
 
-  - [ ] 7.4 Create chat_node
+  - [x] 7.4 Create chat_node
     - Create `app/graphs/workflows/chat_workflow/nodes/chat_node.py`
     - Implement `chat_node()` using LLM with CHAT_NODE_PROMPT
     - Return {"agent_response": str}
     - _Requirements: 2.1, 2.2, 2.3_
 
-  - [ ] 7.5 Create clarify_node
+  - [x] 7.5 Create clarify_node
     - Create `app/graphs/workflows/chat_workflow/nodes/clarify_node.py`
     - Implement `clarify_node()` using LLM
     - Provide examples of supported queries
     - Return {"agent_response": str}
     - _Requirements: 3.1, 3.2, 3.3_
 
-  - [ ] 7.6 Create data_agent_node
+  - [x] 7.6 Create data_agent_node
     - Create `app/graphs/workflows/chat_workflow/nodes/data_agent_node.py`
     - Implement `data_agent_node()` that invokes Data Agent
     - Capture tool_calls for streaming
@@ -140,7 +140,7 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - Return {"agent_response": str, "tool_calls": list}
     - _Requirements: 13.1, 13.2_
 
-  - [ ] 7.7 Create response_formatter node
+  - [x] 7.7 Create response_formatter node
     - Create `app/graphs/workflows/chat_workflow/nodes/response_formatter.py`
     - Implement `response_formatter_node()` using LLM with RESPONSE_FORMATTER_PROMPT
     - Format numbers with Vietnamese locale (1.000.000 VND)
