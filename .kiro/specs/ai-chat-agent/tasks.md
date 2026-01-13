@@ -198,8 +198,8 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 10: Streaming Event Completeness**
     - **Validates: Requirements 11.5, 11.6**
 
-- [ ] 11. Update Common Service Factory
-  - [ ] 11.1 Update service factory
+- [x] 11. Update Common Service Factory
+  - [x] 11.1 Update service factory
     - Update `app/common/service.py`
     - Add `get_data_query_service()` factory function
     - Add `get_pipeline_validator()` factory function

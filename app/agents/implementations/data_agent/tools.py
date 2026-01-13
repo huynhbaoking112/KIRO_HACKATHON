@@ -7,12 +7,37 @@ Requirements: 4.1-4.4, 5.1-5.5, 6.1-6.4, 7.1-7.4, 8.1-8.4
 """
 
 import json
+from datetime import datetime, date
 from typing import Any, Optional
 
 from langchain_core.tools import tool
 
 from app.common.service import get_data_query_service
 from app.services.ai.pipeline_validator import PipelineValidationError
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles datetime objects."""
+
+    def default(self, obj: Any) -> Any:
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        if isinstance(obj, date):
+            return obj.isoformat()
+        return super().default(obj)
+
+
+def _json_dumps(data: Any, **kwargs) -> str:
+    """JSON dumps with datetime support.
+
+    Args:
+        data: Data to serialize
+        **kwargs: Additional arguments for json.dumps
+
+    Returns:
+        JSON string
+    """
+    return json.dumps(data, cls=DateTimeEncoder, **kwargs)
 
 
 def _get_connection_id_by_name(
@@ -197,7 +222,7 @@ def create_aggregate_data_tool(user_connections: list[dict[str, Any]]):
                 user_connection_ids=user_connection_ids,
             )
 
-            return json.dumps(
+            return _json_dumps(
                 {
                     "connection_name": connection_name,
                     "operation": operation,
@@ -210,9 +235,9 @@ def create_aggregate_data_tool(user_connections: list[dict[str, Any]]):
             )
 
         except PipelineValidationError as e:
-            return json.dumps({"error": str(e)}, ensure_ascii=False)
+            return _json_dumps({"error": str(e)}, ensure_ascii=False)
         except Exception as e:
-            return json.dumps({"error": f"Query failed: {str(e)}"}, ensure_ascii=False)
+            return _json_dumps({"error": f"Query failed: {str(e)}"}, ensure_ascii=False)
 
     return aggregate_data
 
@@ -295,7 +320,7 @@ def create_get_top_items_tool(user_connections: list[dict[str, Any]]):
                 user_connection_ids=user_connection_ids,
             )
 
-            return json.dumps(
+            return _json_dumps(
                 {
                     "connection_name": connection_name,
                     "sort_field": sort_field,
@@ -308,9 +333,9 @@ def create_get_top_items_tool(user_connections: list[dict[str, Any]]):
             )
 
         except PipelineValidationError as e:
-            return json.dumps({"error": str(e)}, ensure_ascii=False)
+            return _json_dumps({"error": str(e)}, ensure_ascii=False)
         except Exception as e:
-            return json.dumps({"error": f"Query failed: {str(e)}"}, ensure_ascii=False)
+            return _json_dumps({"error": f"Query failed: {str(e)}"}, ensure_ascii=False)
 
     return get_top_items
 
@@ -394,7 +419,7 @@ def create_compare_periods_tool(user_connections: list[dict[str, Any]]):
                 user_connection_ids=user_connection_ids,
             )
 
-            return json.dumps(
+            return _json_dumps(
                 {
                     "connection_name": connection_name,
                     "operation": operation,
@@ -406,9 +431,9 @@ def create_compare_periods_tool(user_connections: list[dict[str, Any]]):
             )
 
         except PipelineValidationError as e:
-            return json.dumps({"error": str(e)}, ensure_ascii=False)
+            return _json_dumps({"error": str(e)}, ensure_ascii=False)
         except Exception as e:
-            return json.dumps({"error": f"Query failed: {str(e)}"}, ensure_ascii=False)
+            return _json_dumps({"error": f"Query failed: {str(e)}"}, ensure_ascii=False)
 
     return compare_periods
 
@@ -477,7 +502,7 @@ def create_execute_aggregation_tool(user_connections: list[dict[str, Any]]):
                 user_connection_ids=user_connection_ids,
             )
 
-            return json.dumps(
+            return _json_dumps(
                 {
                     "connection_name": connection_name,
                     "description": description,
@@ -489,11 +514,11 @@ def create_execute_aggregation_tool(user_connections: list[dict[str, Any]]):
             )
 
         except PipelineValidationError as e:
-            return json.dumps(
+            return _json_dumps(
                 {"error": f"Pipeline validation failed: {str(e)}"}, ensure_ascii=False
             )
         except Exception as e:
-            return json.dumps(
+            return _json_dumps(
                 {"error": f"Query execution failed: {str(e)}"}, ensure_ascii=False
             )
 

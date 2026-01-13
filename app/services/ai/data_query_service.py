@@ -78,14 +78,14 @@ class DataQueryService:
 
             for mapping in conn.column_mappings:
                 field_info: dict[str, Any] = {
-                    "name": mapping.target_field,
+                    "name": mapping.system_field,
                     "type": mapping.data_type,
-                    "source_column": mapping.source_column,
+                    "source_column": mapping.sheet_column,
                 }
 
                 # Add sample value if available
-                if mapping.target_field in sample_values:
-                    field_info["sample_value"] = sample_values[mapping.target_field]
+                if mapping.system_field in sample_values:
+                    field_info["sample_value"] = sample_values[mapping.system_field]
 
                 fields.append(field_info)
 
