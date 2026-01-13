@@ -15,6 +15,8 @@ from app.infrastructure.redis.client import RedisClient
 from app.infrastructure.redis.redis_queue import RedisQueue
 from app.services.ai.chat_service import ChatService
 from app.services.ai.conversation_service import ConversationService
+from app.services.ai.data_query_service import DataQueryService
+from app.services.ai.pipeline_validator import PipelineValidator
 from app.services.analytics.analytics_service import AnalyticsService
 from app.services.analytics.cache_manager import AnalyticsCacheManager
 from app.services.auth.auth_service import AuthService
@@ -114,3 +116,27 @@ def get_chat_service() -> ChatService:
     """
     conversation_service = get_conversation_service()
     return ChatService(conversation_service)
+
+
+@lru_cache
+def get_pipeline_validator() -> PipelineValidator:
+    """Get singleton PipelineValidator instance.
+
+    Returns:
+        PipelineValidator instance for validating aggregation pipelines
+    """
+    return PipelineValidator()
+
+
+@lru_cache
+def get_data_query_service() -> DataQueryService:
+    """Get singleton DataQueryService instance.
+
+    Returns:
+        DataQueryService instance with all dependencies
+    """
+    return DataQueryService(
+        connection_repo=get_sheet_connection_repo(),
+        data_repo=get_sheet_data_repo(),
+        pipeline_validator=get_pipeline_validator(),
+    )

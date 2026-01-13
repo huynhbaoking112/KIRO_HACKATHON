@@ -20,8 +20,8 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - Create `app/prompts/system/response_formatter.py` with RESPONSE_FORMATTER_PROMPT
     - _Requirements: 1.5, 2.2, 3.2, 9.2, 9.3, 9.4_
 
-- [ ] 2. Implement Service Layer
-  - [ ] 2.1 Create PipelineValidator service
+- [x] 2. Implement Service Layer
+  - [x] 2.1 Create PipelineValidator service
     - Create `app/services/ai/pipeline_validator.py`
     - Implement ALLOWED_STAGES, BLOCKED_STAGES constants
     - Implement `validate()` method to check pipeline stages
@@ -34,7 +34,7 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 5: Result Limit Enforcement**
     - **Validates: Requirements 8.5, 8.6, 8.7**
 
-  - [ ] 2.3 Create DataQueryService
+  - [x] 2.3 Create DataQueryService
     - Create `app/services/ai/data_query_service.py`
     - Implement `get_user_connections()` to fetch user's sheet connections with schemas
     - Implement `aggregate()` for sum/count/avg/min/max operations
