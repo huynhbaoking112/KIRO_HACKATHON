@@ -86,15 +86,15 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - Execute validated pipeline via DataQueryService
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 5. Implement Data Agent
-  - [ ] 5.1 Create Data Agent
+- [x] 5. Implement Data Agent
+  - [x] 5.1 Create Data Agent
     - Create `app/agents/implementations/data_agent/agent.py`
     - Implement `create_data_agent()` function using `create_react_agent`
     - Bind all 5 tools to agent
     - Format schema_context in system prompt
     - _Requirements: 4.1, 5.1, 6.1, 7.1, 8.1_
 
-  - [ ] 5.2 Update agent registry
+  - [x] 5.2 Update agent registry
     - Update `app/agents/registry.py` to register data_agent
     - _Requirements: 14.1_
 
