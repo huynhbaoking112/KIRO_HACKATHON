@@ -3,8 +3,12 @@
 Provides factory functions to create and retrieve graph instances.
 """
 
-from typing import Callable, Dict, Any
+from typing import TYPE_CHECKING, Any, Callable, Dict
+
 from langgraph.graph.state import CompiledStateGraph
+
+if TYPE_CHECKING:
+    pass  # Type hints only, no runtime imports
 
 # Registry of graph factories
 _graph_registry: Dict[str, Callable[..., CompiledStateGraph]] = {}
@@ -43,3 +47,25 @@ def get_graph(name: str, **kwargs: Any) -> CompiledStateGraph:
 def list_graphs() -> list[str]:
     """List all registered graph names."""
     return list(_graph_registry.keys())
+
+
+def get_chat_workflow(user_connections: list[dict] | None = None) -> CompiledStateGraph:
+    """Get a compiled chat workflow instance.
+
+    This is a convenience function that creates a chat workflow
+    with lazy import to avoid circular dependencies.
+
+    Args:
+        user_connections: Optional list of user's sheet connections with schemas
+
+    Returns:
+        Compiled LangGraph StateGraph ready for execution
+    """
+    # Lazy import to avoid circular dependency
+    from app.graphs.workflows.chat_workflow.graph import create_chat_workflow
+
+    return create_chat_workflow(user_connections)
+
+
+# Register built-in workflows using lazy factory
+register_graph("chat_workflow", get_chat_workflow)

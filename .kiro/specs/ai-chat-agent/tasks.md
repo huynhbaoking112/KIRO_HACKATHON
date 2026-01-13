@@ -151,8 +151,8 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 8: Response Formatter Output**
     - **Validates: Requirements 9.1**
 
-- [ ] 8. Implement Chat Workflow Graph
-  - [ ] 8.1 Create ChatWorkflow graph
+- [x] 8. Implement Chat Workflow Graph
+  - [x] 8.1 Create ChatWorkflow graph
     - Create `app/graphs/workflows/chat_workflow/graph.py`
     - Implement ChatWorkflow class with StateGraph
     - Add all 5 nodes to graph
@@ -166,7 +166,7 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 2: Workflow Routing Correctness**
     - **Validates: Requirements 1.2, 1.3, 1.4**
 
-  - [ ] 8.3 Update graph registry
+  - [x] 8.3 Update graph registry
     - Create/update `app/graphs/registry.py` to register chat_workflow
     - _Requirements: 14.1_
 

@@ -1,12 +1,12 @@
 """Agent registry/factory for managing agent instances."""
 
 from functools import lru_cache
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from langgraph.graph.state import CompiledStateGraph
 
-from app.agents.implementations.data_agent.agent import create_data_agent
-from app.agents.implementations.default_agent.agent import create_default_agent
+if TYPE_CHECKING:
+    pass  # Type hints only, no runtime imports
 
 
 @lru_cache
@@ -16,6 +16,9 @@ def get_default_agent() -> CompiledStateGraph:
     Returns:
         Cached CompiledStateGraph instance of the default ReAct agent.
     """
+    # Lazy import to avoid circular dependency
+    from app.agents.implementations.default_agent.agent import create_default_agent
+
     return create_default_agent()
 
 
@@ -35,4 +38,7 @@ def get_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGraph
 
     Requirements: 14.1
     """
+    # Lazy import to avoid circular dependency
+    from app.agents.implementations.data_agent.agent import create_data_agent
+
     return create_data_agent(user_connections)
