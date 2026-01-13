@@ -109,13 +109,17 @@ def get_analytics_service() -> AnalyticsService:
 
 
 def get_chat_service() -> ChatService:
-    """Get singleton ChatService instance.
+    """Get ChatService instance.
+
+    Note: Not using @lru_cache because ChatService depends on
+    DataQueryService which may need fresh connections.
 
     Returns:
-        ChatService instance with ConversationService dependency
+        ChatService instance with all dependencies
     """
     conversation_service = get_conversation_service()
-    return ChatService(conversation_service)
+    data_query_service = get_data_query_service()
+    return ChatService(conversation_service, data_query_service)
 
 
 @lru_cache

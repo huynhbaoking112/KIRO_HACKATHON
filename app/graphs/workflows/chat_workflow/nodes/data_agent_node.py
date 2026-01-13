@@ -1,4 +1,7 @@
-"""Data agent node for handling data queries."""
+"""Data agent node for handling data queries.
+
+Emits Socket.IO events directly for real-time streaming to clients.
+"""
 
 import logging
 from typing import Any
@@ -6,7 +9,9 @@ from typing import Any
 from langchain_core.messages import AIMessage, HumanMessage
 
 from app.agents.implementations.data_agent.agent import create_data_agent
+from app.common.event_socket import ChatEvents
 from app.graphs.workflows.chat_workflow.state import ChatWorkflowState, ToolCallRecord
+from app.socket_gateway import gateway
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +22,8 @@ async def data_agent_node(state: ChatWorkflowState) -> dict:
     """Execute Data Agent to handle data queries.
 
     Creates a ReAct agent with data query tools and invokes it to
-    process the user's data-related question. Captures tool calls
-    for streaming and handles retries on failure.
+    process the user's data-related question. Emits Socket.IO events
+    for tool calls and token streaming.
 
     Args:
         state: Current workflow state containing messages, user_connections, etc.
@@ -26,18 +31,19 @@ async def data_agent_node(state: ChatWorkflowState) -> dict:
     Returns:
         dict with:
         - "agent_response": The agent's final response string
-        - "tool_calls": List of tool call records for streaming
+        - "tool_calls": List of tool call records
     """
     user_connections = state.get("user_connections", [])
     messages = state.get("messages", [])
+    user_id = state.get("user_id", "")
+    conversation_id = state.get("conversation_id", "")
     tool_calls: list[ToolCallRecord] = []
 
     # Check if user has any connections
     if not user_connections:
         logger.warning("User has no connections configured")
         return {
-            "agent_response": "You don't have any data synchronized yet. "
-            "Please set up a Google Sheet connection before querying data.",
+            "agent_response": "You don't have any data synchronized yet. Please establish a Google Sheet connection before querying data.",
             "tool_calls": [],
         }
 
@@ -55,9 +61,13 @@ async def data_agent_node(state: ChatWorkflowState) -> dict:
         try:
             logger.info("Data agent attempt %d/%d", attempt + 1, MAX_RETRIES)
 
-            # Stream agent execution and capture final response
+            # Stream agent execution with Socket.IO emit
             agent_response = await _stream_agent_execution(
-                agent, agent_messages, tool_calls
+                agent=agent,
+                agent_messages=agent_messages,
+                tool_calls=tool_calls,
+                user_id=user_id,
+                conversation_id=conversation_id,
             )
 
             if agent_response:
@@ -77,11 +87,7 @@ async def data_agent_node(state: ChatWorkflowState) -> dict:
     # Handle case where all retries failed
     if agent_response is None:
         logger.error("Data agent failed after %d attempts: %s", MAX_RETRIES, last_error)
-        agent_response = (
-            "Sorry, I encountered an issue while querying your data. "
-            "Please try again or rephrase your question."
-        )
-
+        agent_response = "Sorry, I'm having trouble querying your data. Please try again or rephrase your question."
     return {
         "agent_response": agent_response,
         "tool_calls": tool_calls,
@@ -92,21 +98,23 @@ async def _stream_agent_execution(
     agent: Any,
     agent_messages: list[Any],
     tool_calls: list[ToolCallRecord],
+    user_id: str,
+    conversation_id: str,
 ) -> str | None:
-    """Stream agent execution and capture tool calls and final response.
-
-    Uses astream_events to get real-time updates and extracts the final
-    AI response from on_chain_end event.
+    """Stream agent execution, emit Socket.IO events, and capture final response.
 
     Args:
         agent: The compiled LangGraph agent
         agent_messages: Input messages for the agent
         tool_calls: List to append tool call records to
+        user_id: User ID for Socket.IO room targeting
+        conversation_id: Conversation ID for event data
 
     Returns:
         The final agent response string, or None if not found
     """
     agent_response = None
+    full_content = ""
 
     async for event in agent.astream_events(
         {"messages": agent_messages},
@@ -114,8 +122,23 @@ async def _stream_agent_execution(
     ):
         event_kind = event.get("event", "")
 
-        # Capture tool start events
-        if event_kind == "on_tool_start":
+        # Handle token streaming
+        if event_kind == "on_chat_model_stream":
+            chunk = event.get("data", {}).get("chunk")
+            if chunk and hasattr(chunk, "content") and chunk.content:
+                token = chunk.content
+                full_content += token
+                await gateway.emit_to_user(
+                    user_id=user_id,
+                    event=ChatEvents.MESSAGE_TOKEN,
+                    data={
+                        "conversation_id": conversation_id,
+                        "token": token,
+                    },
+                )
+
+        # Handle tool start events
+        elif event_kind == "on_tool_start":
             tool_name = event.get("name", "unknown")
             tool_input = event.get("data", {}).get("input", {})
             run_id = event.get("run_id", "")
@@ -128,18 +151,42 @@ async def _stream_agent_execution(
                 "error": None,
             }
             tool_calls.append(tool_call_record)
+
+            # Emit tool start event
+            await gateway.emit_to_user(
+                user_id=user_id,
+                event=ChatEvents.MESSAGE_TOOL_START,
+                data={
+                    "conversation_id": conversation_id,
+                    "tool_name": tool_name,
+                    "tool_call_id": run_id,
+                    "arguments": tool_input,
+                },
+            )
             logger.info("Tool started: %s", tool_name)
 
-        # Capture tool end events
+        # Handle tool end events
         elif event_kind == "on_tool_end":
             tool_output = event.get("data", {}).get("output", "")
             run_id = event.get("run_id", "")
+            result = str(tool_output) if tool_output else ""
 
             # Update the matching tool call record
             for tc in tool_calls:
                 if tc["tool_call_id"] == run_id:
-                    tc["result"] = str(tool_output)
+                    tc["result"] = result
                     break
+
+            # Emit tool end event
+            await gateway.emit_to_user(
+                user_id=user_id,
+                event=ChatEvents.MESSAGE_TOOL_END,
+                data={
+                    "conversation_id": conversation_id,
+                    "tool_call_id": run_id,
+                    "result": result,
+                },
+            )
             logger.info("Tool ended: %s", event.get("name", "unknown"))
 
         # Capture final response from chain end

@@ -173,8 +173,8 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
 - [ ] 9. Checkpoint - Ensure workflow tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 10. Integrate with Chat Service
-  - [ ] 10.1 Update ChatService
+- [x] 10. Integrate with Chat Service
+  - [x] 10.1 Update ChatService
     - Update `app/services/ai/chat_service.py`
     - Add DataQueryService dependency
     - Implement `process_message()` using ChatWorkflow
@@ -186,7 +186,7 @@ Triển khai AI Chat Agent sử dụng LangGraph workflow với multi-node archi
     - **Property 9: Conversation Context Preservation**
     - **Validates: Requirements 10.1, 10.2, 10.3**
 
-  - [ ] 10.3 Implement Socket.IO streaming
+  - [x] 10.3 Implement Socket.IO streaming
     - Emit "chat:message:started" when workflow starts
     - Emit "chat:message:token" for streamed tokens
     - Emit "chat:message:tool_start" and "chat:message:tool_end" for tool calls

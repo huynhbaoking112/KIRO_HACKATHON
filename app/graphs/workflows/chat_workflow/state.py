@@ -34,7 +34,6 @@ class ChatWorkflowState(TypedDict):
         intent: Classified intent ("data_query", "chat", "unclear")
         agent_response: Response from the agent/node
         tool_calls: History of tool calls for streaming
-        final_response: Formatted final response for the user
         error: Error message if workflow fails
     """
 
@@ -45,5 +44,4 @@ class ChatWorkflowState(TypedDict):
     intent: Optional[str]
     agent_response: Optional[str]
     tool_calls: list[ToolCallRecord]
-    final_response: Optional[str]
     error: Optional[str]
