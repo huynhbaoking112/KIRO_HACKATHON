@@ -19,13 +19,13 @@ Tích hợp DuckDuckGo MCP Server vào hệ thống AI Chat thông qua langchain
     - Support enabled/disabled flag per server
     - _Requirements: 5.1, 5.2, 5.3, 5.5_
 
-- [ ] 2. Implement MCP Tools Manager
-  - [ ] 2.1 Create MCP infrastructure module structure
+- [x] 2. Implement MCP Tools Manager
+  - [x] 2.1 Create MCP infrastructure module structure
     - Create `app/infrastructure/mcp/__init__.py`
     - Create `app/infrastructure/mcp/manager.py`
     - _Requirements: 1.1_
 
-  - [ ] 2.2 Implement MCPToolsManager class
+  - [x] 2.2 Implement MCPToolsManager class
     - Implement singleton pattern with get_instance()
     - Implement initialize() method with MultiServerMCPClient
     - Implement get_tools() method
@@ -33,7 +33,7 @@ Tích hợp DuckDuckGo MCP Server vào hệ thống AI Chat thông qua langchain
     - Filter disabled servers from initialization
     - _Requirements: 1.1, 1.2, 1.3, 1.5, 5.4, 5.5_
 
-  - [ ] 2.3 Add error handling for MCP initialization
+  - [x] 2.3 Add error handling for MCP initialization
     - Catch connection failures and log errors
     - Continue with empty tools if MCP fails
     - Implement 30 second timeout
