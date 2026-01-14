@@ -139,18 +139,14 @@ class MCPToolsManager:
 
     def get_tools(
         self,
-        server_names: list[str] | None = None,
         tool_names: list[str] | None = None,
     ) -> list[BaseTool]:
-        """Get MCP tools, optionally filtered by server or tool name.
+        """Get MCP tools, optionally filtered by tool name.
 
         Args:
-            server_names: Optional list of server names to filter by.
-                Only tools from these servers will be returned.
-                Example: ["ddg-search"] to get only DuckDuckGo tools.
             tool_names: Optional list of tool names to filter by.
                 Only tools with these names will be returned.
-                Example: ["search", "fetch_content"] for web search tools.
+                Example: ["search", "fetch"] for web search tools.
 
         Returns:
             List of BaseTool instances from MCP servers.
@@ -160,43 +156,19 @@ class MCPToolsManager:
             # Get all tools
             tools = manager.get_tools()
 
-            # Get only tools from ddg-search server
-            tools = manager.get_tools(server_names=["ddg-search"])
-
             # Get specific tools by name
-            tools = manager.get_tools(tool_names=["search", "fetch_content"])
+            tools = manager.get_tools(tool_names=["search", "fetch"])
         """
         if not self._initialized:
             logger.warning("MCPToolsManager not initialized. Call initialize() first.")
             return []
 
         # No filtering, return all tools
-        if server_names is None and tool_names is None:
+        if tool_names is None:
             return self._tools
 
-        filtered_tools = []
-        for tool in self._tools:
-            # Filter by tool name if specified
-            if tool_names is not None and tool.name not in tool_names:
-                continue
-
-            # Filter by server name if specified
-            # MCP tools typically have metadata with server info
-            if server_names is not None:
-                # Check tool metadata for server name
-                tool_server = getattr(tool, "metadata", {}).get("server_name")
-                if tool_server is None:
-                    # Fallback: check if tool name contains server prefix
-                    # e.g., "ddg-search__search" -> server is "ddg-search"
-                    if "__" in tool.name:
-                        tool_server = tool.name.split("__")[0]
-
-                if tool_server not in server_names:
-                    continue
-
-            filtered_tools.append(tool)
-
-        return filtered_tools
+        # Filter by tool name
+        return [tool for tool in self._tools if tool.name in tool_names]
 
     async def reload(
         self,

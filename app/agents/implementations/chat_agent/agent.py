@@ -39,12 +39,17 @@ def create_chat_agent() -> CompiledStateGraph:
         streaming=True,
     )
 
-    # Get MCP tools (web search, fetch content) - only from ddg-search server
+    # Get MCP tools (web search, fetch content)
     mcp_manager = get_mcp_tools_manager()
-    mcp_tools = mcp_manager.get_tools(server_names=["ddg-search"])
+    # DuckDuckGo MCP provides: "search" and "fetch" tools
+    mcp_tools = mcp_manager.get_tools(tool_names=["search", "fetch_content"])
 
     if mcp_tools:
-        logger.info("Chat agent initialized with %d MCP tools", len(mcp_tools))
+        logger.info(
+            "Chat agent initialized with %d MCP tools: %s",
+            len(mcp_tools),
+            [t.name for t in mcp_tools],
+        )
     else:
         logger.warning("No MCP tools available for chat agent")
 

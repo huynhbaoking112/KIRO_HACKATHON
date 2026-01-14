@@ -113,8 +113,8 @@ Tích hợp DuckDuckGo MCP Server vào hệ thống AI Chat thông qua langchain
   - Verify Socket.IO events are emitted
   - Ask the user if questions arise
 
-- [ ] 8. Application startup integration
-  - [ ] 8.1 Initialize MCP manager on app startup
+- [x] 8. Application startup integration
+  - [x] 8.1 Initialize MCP manager on app startup
     - Update `app/main.py` or startup hook
     - Call MCPToolsManager.initialize() with config
     - Handle initialization errors gracefully

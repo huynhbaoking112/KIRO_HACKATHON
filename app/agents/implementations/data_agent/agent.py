@@ -114,12 +114,17 @@ def create_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGr
         create_execute_aggregation_tool(user_connections),
     ]
 
-    # Get MCP tools (web search, fetch content) - only from ddg-search server
+    # Get MCP tools (web search, fetch content)
     mcp_manager = get_mcp_tools_manager()
-    mcp_tools = mcp_manager.get_tools(server_names=["ddg-search"])
+    # DuckDuckGo MCP provides: "search" and "fetch" tools
+    mcp_tools = mcp_manager.get_tools(tool_names=["search", "fetch_content"])
 
     if mcp_tools:
-        logger.info("Adding %d MCP tools to data agent", len(mcp_tools))
+        logger.info(
+            "Adding %d MCP tools to data agent: %s",
+            len(mcp_tools),
+            [t.name for t in mcp_tools],
+        )
     else:
         logger.warning("No MCP tools available for data agent")
 

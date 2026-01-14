@@ -134,10 +134,25 @@ async def _stream_chat_agent_execution(
             tool_input = event.get("data", {}).get("input", {})
             run_id = event.get("run_id", "")
 
+            # Ensure tool_input is JSON serializable
+            if isinstance(tool_input, dict):
+                serializable_input = {
+                    k: (
+                        str(v)
+                        if not isinstance(
+                            v, (str, int, float, bool, list, dict, type(None))
+                        )
+                        else v
+                    )
+                    for k, v in tool_input.items()
+                }
+            else:
+                serializable_input = {"input": str(tool_input)}
+
             tool_call_record: ToolCallRecord = {
                 "tool_name": tool_name,
                 "tool_call_id": run_id,
-                "arguments": tool_input if isinstance(tool_input, dict) else {},
+                "arguments": serializable_input,
                 "result": None,
                 "error": None,
             }
@@ -151,7 +166,7 @@ async def _stream_chat_agent_execution(
                     "conversation_id": conversation_id,
                     "tool_name": tool_name,
                     "tool_call_id": run_id,
-                    "arguments": tool_input,
+                    "arguments": serializable_input,
                 },
             )
             logger.info("Chat agent tool started: %s", tool_name)
