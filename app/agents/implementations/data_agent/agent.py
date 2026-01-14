@@ -2,10 +2,12 @@
 
 This agent handles data queries using custom tools bound to user's connections.
 It uses the ReAct pattern for reasoning and tool execution.
+Includes MCP tools for web search capability when external information is needed.
 
-Requirements: 4.1, 5.1, 6.1, 7.1, 8.1
+Requirements: 4.1, 5.1, 6.1, 7.1, 8.1, 3.1 (MCP integration)
 """
 
+import logging
 from typing import Any
 
 from langgraph.graph.state import CompiledStateGraph
@@ -19,7 +21,10 @@ from app.agents.implementations.data_agent.tools import (
     create_get_top_items_tool,
 )
 from app.infrastructure.llm.factory import get_chat_openai
+from app.infrastructure.mcp.manager import get_mcp_tools_manager
 from app.prompts.system.data_agent import DATA_AGENT_SYSTEM_PROMPT
+
+logger = logging.getLogger(__name__)
 
 
 def format_schema_context(user_connections: list[dict[str, Any]]) -> str:
@@ -71,7 +76,8 @@ def create_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGr
     """Create a ReAct agent with data query tools bound to user's connections.
 
     This agent is created per-request with the user's specific connections,
-    ensuring data isolation between users.
+    ensuring data isolation between users. It also includes MCP tools for
+    web search capability when external information is needed.
 
     Args:
         user_connections: List of user's sheet connections with schemas.
@@ -90,6 +96,7 @@ def create_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGr
         - 6.1: get_top_items tool for top N queries
         - 7.1: compare_periods tool for period comparison
         - 8.1: execute_aggregation tool for custom pipelines
+        - 3.1: MCP web search tools for external information
     """
     # Create LLM instance
     llm = get_chat_openai(
@@ -98,14 +105,26 @@ def create_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGr
         max_tokens=4096,
     )
 
-    # Create tools bound to user's connections
-    tools = [
+    # Create data tools bound to user's connections
+    data_tools = [
         create_get_data_schema_tool(user_connections),
         create_aggregate_data_tool(user_connections),
         create_get_top_items_tool(user_connections),
         create_compare_periods_tool(user_connections),
         create_execute_aggregation_tool(user_connections),
     ]
+
+    # Get MCP tools (web search, fetch content) - only from ddg-search server
+    mcp_manager = get_mcp_tools_manager()
+    mcp_tools = mcp_manager.get_tools(server_names=["ddg-search"])
+
+    if mcp_tools:
+        logger.info("Adding %d MCP tools to data agent", len(mcp_tools))
+    else:
+        logger.warning("No MCP tools available for data agent")
+
+    # Combine all tools: data tools + MCP tools
+    all_tools = data_tools + mcp_tools
 
     # Format schema context for the system prompt
     schema_context = format_schema_context(user_connections)
@@ -114,7 +133,7 @@ def create_data_agent(user_connections: list[dict[str, Any]]) -> CompiledStateGr
     # Create ReAct agent with tools and prompt
     agent = create_react_agent(
         model=llm,
-        tools=tools,
+        tools=all_tools,
         prompt=system_prompt,
     )
 

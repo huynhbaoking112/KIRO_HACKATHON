@@ -52,14 +52,14 @@ Tích hợp DuckDuckGo MCP Server vào hệ thống AI Chat thông qua langchain
   - Verify tools are loaded from DuckDuckGo MCP
   - Ask the user if questions arise
 
-- [ ] 4. Update Data Agent with MCP tools
-  - [ ] 4.1 Update data_agent.py to include MCP tools
+- [x] 4. Update Data Agent with MCP tools
+  - [x] 4.1 Update data_agent.py to include MCP tools
     - Import MCPToolsManager
     - Get MCP tools and combine with existing data tools
     - Pass combined tools to create_react_agent
     - _Requirements: 3.1_
 
-  - [ ] 4.2 Update DATA_AGENT_SYSTEM_PROMPT
+  - [x] 4.2 Update DATA_AGENT_SYSTEM_PROMPT
     - Create new prompt in `app/prompts/system/data_agent.py`
     - Add instructions for when to use web search
     - Explain web_search and fetch_content tools
