@@ -31,3 +31,6 @@ langchain-community
 langchain-openai
 langchain
 langgraph
+
+# MCP Integration
+langchain-mcp-adapters>=0.1.0
