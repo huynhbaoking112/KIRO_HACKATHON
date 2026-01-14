@@ -69,18 +69,18 @@ Tích hợp DuckDuckGo MCP Server vào hệ thống AI Chat thông qua langchain
     - **Property 3: Agent Tool Inclusion**
     - **Validates: Requirements 3.1**
 
-- [ ] 5. Create Chat Agent with MCP tools
-  - [ ] 5.1 Create chat_agent module structure
+- [x] 5. Create Chat Agent with MCP tools
+  - [x] 5.1 Create chat_agent module structure
     - Create `app/agents/implementations/chat_agent/__init__.py`
     - Create `app/agents/implementations/chat_agent/agent.py`
     - _Requirements: 4.1_
 
-  - [ ] 5.2 Implement create_chat_agent function
+  - [x] 5.2 Implement create_chat_agent function
     - Create ReAct agent with MCP tools
     - Configure LLM with temperature=0.7, streaming=True
     - _Requirements: 4.1, 4.2_
 
-  - [ ] 5.3 Create CHAT_AGENT_SYSTEM_PROMPT
+  - [x] 5.3 Create CHAT_AGENT_SYSTEM_PROMPT
     - Create `app/prompts/system/chat_agent.py`
     - Instructions for friendly Vietnamese responses
     - When to use web search for current information
@@ -90,14 +90,14 @@ Tích hợp DuckDuckGo MCP Server vào hệ thống AI Chat thông qua langchain
     - **Property 3: Agent Tool Inclusion**
     - **Validates: Requirements 4.2**
 
-- [ ] 6. Update chat_node to use chat_agent
-  - [ ] 6.1 Refactor chat_node.py
+- [x] 6. Update chat_node to use chat_agent
+  - [x] 6.1 Refactor chat_node.py
     - Import create_chat_agent
     - Replace direct LLM call with agent execution
     - Maintain streaming capability
     - _Requirements: 4.1, 4.5_
 
-  - [ ] 6.2 Implement tool event streaming
+  - [x] 6.2 Implement tool event streaming
     - Emit ChatEvents.MESSAGE_TOOL_START before tool execution
     - Emit ChatEvents.MESSAGE_TOOL_END after tool execution
     - Include tool name and arguments in events
