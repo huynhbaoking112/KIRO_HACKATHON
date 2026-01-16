@@ -24,11 +24,11 @@ Implement 2 GET endpoints cho list conversations và get messages. Follow existi
     - **Property 6: Soft-Delete Exclusion**
     - **Validates: Requirements 1.5, 1.8, 4.2, 4.4**
 
-- [ ] 3. Add service layer methods
-  - [ ] 3.1 Add search_user_conversations method to `app/services/ai/conversation_service.py`
+- [x] 3. Add service layer methods
+  - [x] 3.1 Add search_user_conversations method to `app/services/ai/conversation_service.py`
     - Delegate to conversation_repo.search_by_user
     - _Requirements: 1.1, 1.2, 1.4, 1.5, 1.6_
-  - [ ] 3.2 Add search_conversations method to `app/services/ai/chat_service.py`
+  - [x] 3.2 Add search_conversations method to `app/services/ai/chat_service.py`
     - Delegate to conversation_service.search_user_conversations
     - _Requirements: 1.1, 1.2, 1.4, 1.5, 1.6_
 

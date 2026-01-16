@@ -11,8 +11,10 @@ import logging
 from typing import Optional
 
 from app.common.event_socket import ChatEvents
+from app.domain.models.conversation import ConversationStatus
 from app.domain.models.message import MessageMetadata, MessageRole
 from app.graphs.registry import get_chat_workflow
+from app.repo.conversation_repo import SearchResult
 from app.services.ai.conversation_service import ConversationService
 from app.services.ai.data_query_service import DataQueryService
 from app.socket_gateway import gateway
@@ -81,6 +83,38 @@ class ChatService:
         )
 
         return message.id, conversation_id
+
+    async def search_conversations(
+        self,
+        user_id: str,
+        status: Optional[ConversationStatus] = None,
+        search: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 20,
+    ) -> SearchResult:
+        """Search conversations for a user with filters.
+
+        Delegates to conversation_service which uses the repository.
+
+        Args:
+            user_id: ID of the user
+            status: Optional status filter
+            search: Optional title search query
+            skip: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            SearchResult with items and total count
+
+        Requirements: 1.1, 1.2, 1.4, 1.5, 1.6
+        """
+        return await self.conversation_service.search_user_conversations(
+            user_id=user_id,
+            status=status,
+            search=search,
+            skip=skip,
+            limit=limit,
+        )
 
     async def process_agent_response(
         self,
