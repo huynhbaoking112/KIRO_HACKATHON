@@ -16,14 +16,14 @@ from langchain_core.messages import (
     ToolMessage,
 )
 
-from app.domain.models.conversation import Conversation
+from app.domain.models.conversation import Conversation, ConversationStatus
 from app.domain.models.message import (
     Attachment,
     Message,
     MessageMetadata,
     MessageRole,
 )
-from app.repo.conversation_repo import ConversationRepository
+from app.repo.conversation_repo import ConversationRepository, SearchResult
 from app.repo.message_repo import MessageRepository
 
 
@@ -320,6 +320,36 @@ class ConversationService:
         """
         return await self.conversation_repo.get_by_user(
             user_id=user_id,
+            skip=skip,
+            limit=limit,
+        )
+
+    async def search_user_conversations(
+        self,
+        user_id: str,
+        status: Optional[ConversationStatus] = None,
+        search: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 20,
+    ) -> SearchResult:
+        """Search conversations for a user with filters and pagination.
+
+        Args:
+            user_id: ID of the user
+            status: Optional status filter
+            search: Optional title search query
+            skip: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            SearchResult with items and total count
+
+        Requirements: 1.1, 1.2, 1.4, 1.5, 1.6
+        """
+        return await self.conversation_repo.search_by_user(
+            user_id=user_id,
+            status=status,
+            search=search,
             skip=skip,
             limit=limit,
         )

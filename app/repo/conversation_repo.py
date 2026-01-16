@@ -1,12 +1,21 @@
 """Conversation repository for database operations."""
 
+import re
 from datetime import datetime, timezone
 from typing import Optional
 
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from pydantic import BaseModel
 
 from app.domain.models.conversation import Conversation, ConversationStatus
+
+
+class SearchResult(BaseModel):
+    """Result from search_by_user containing items and total count."""
+
+    items: list[Conversation]
+    total: int
 
 
 class ConversationRepository:
@@ -126,6 +135,56 @@ class ConversationRepository:
             conversations.append(Conversation(**doc))
 
         return conversations
+
+    async def search_by_user(
+        self,
+        user_id: str,
+        status: Optional[ConversationStatus] = None,
+        search: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 20,
+    ) -> SearchResult:
+        """Search conversations for a user with filters and pagination.
+
+        Args:
+            user_id: User ID to search for
+            status: Optional status filter (active/archived)
+            search: Optional title search (case-insensitive partial match)
+            skip: Number of records to skip
+            limit: Maximum number of records to return
+
+        Returns:
+            SearchResult with items and total count
+
+        Requirements: 4.1, 4.2, 4.3, 4.4
+        """
+        # Build query filter
+        query: dict = {
+            "user_id": user_id,
+            "deleted_at": None,
+        }
+
+        if status is not None:
+            query["status"] = status.value
+
+        if search:
+            # Case-insensitive regex search with escaped special characters
+            query["title"] = {"$regex": re.escape(search), "$options": "i"}
+
+        # Get total count
+        total = await self.collection.count_documents(query)
+
+        # Get paginated results sorted by updated_at descending
+        cursor = (
+            self.collection.find(query).sort("updated_at", -1).skip(skip).limit(limit)
+        )
+
+        items = []
+        async for doc in cursor:
+            doc["_id"] = str(doc["_id"])
+            items.append(Conversation(**doc))
+
+        return SearchResult(items=items, total=total)
 
     async def update(
         self,
