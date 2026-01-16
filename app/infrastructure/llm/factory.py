@@ -28,6 +28,8 @@ def get_chat_openai(
     settings = get_settings()
     api_base = base_url or settings.OPENAI_API_BASE
     return ChatOpenAI(
+        reasoning_effort="high",
+        store=False,
         api_key=settings.OPENAI_API_KEY,
         base_url=api_base,
         model=model,

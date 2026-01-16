@@ -1,6 +1,6 @@
-<!-- ---
+---
 inclusion: manual
---- -->
+---
 
 # Project Structure Guidelines
 
