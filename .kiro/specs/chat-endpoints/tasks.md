@@ -12,8 +12,8 @@ Implement 2 GET endpoints cho list conversations và get messages. Follow existi
     - Follow existing schema patterns in the file
     - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 2. Add repository search method
-  - [ ] 2.1 Add SearchResult model and search_by_user method to `app/repo/conversation_repo.py`
+- [-] 2. Add repository search method
+  - [x] 2.1 Add SearchResult model and search_by_user method to `app/repo/conversation_repo.py`
     - Add SearchResult Pydantic model with items and total fields
     - Implement search_by_user with status filter, title regex search, pagination
     - Use re.escape() for safe regex
