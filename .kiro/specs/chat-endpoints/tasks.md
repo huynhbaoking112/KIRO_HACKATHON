@@ -32,8 +32,8 @@ Implement 2 GET endpoints cho list conversations và get messages. Follow existi
     - Delegate to conversation_service.search_user_conversations
     - _Requirements: 1.1, 1.2, 1.4, 1.5, 1.6_
 
-- [ ] 4. Implement list conversations endpoint
-  - [ ] 4.1 Add GET /conversations endpoint to `app/api/v1/ai/chat.py`
+- [x] 4. Implement list conversations endpoint
+  - [x] 4.1 Add GET /conversations endpoint to `app/api/v1/ai/chat.py`
     - Add Query parameters: skip (default 0, ge=0), limit (default 20, ge=1, le=100), status (optional), search (optional, max_length=100)
     - Call chat_service.search_conversations
     - Map Conversation models to ConversationResponse
@@ -46,8 +46,8 @@ Implement 2 GET endpoints cho list conversations và get messages. Follow existi
     - **Property 5: User Isolation**
     - **Validates: Requirements 1.1, 1.2, 1.4, 1.6, 1.7**
 
-- [ ] 5. Implement get messages endpoint
-  - [ ] 5.1 Add GET /conversations/{conversation_id}/messages endpoint to `app/api/v1/ai/chat.py`
+- [x] 5. Implement get messages endpoint
+  - [x] 5.1 Add GET /conversations/{conversation_id}/messages endpoint to `app/api/v1/ai/chat.py`
     - Verify conversation exists and user owns it (return 404 if not)
     - Get all messages via conversation_service.get_messages (no pagination needed)
     - Map Message models to MessageResponse
