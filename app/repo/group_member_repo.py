@@ -152,7 +152,7 @@ class GroupMemberRepository:
         self,
         user_id: str,
         skip: int = 0,
-        limit: int = 20,
+        limit: int | None = 20,
     ) -> list[str]:
         """List active group IDs for a user with pagination."""
         cursor = (
@@ -163,8 +163,9 @@ class GroupMemberRepository:
                 }
             )
             .skip(skip)
-            .limit(limit)
         )
+        if limit is not None:
+            cursor = cursor.limit(limit)
 
         group_ids: list[str] = []
         async for doc in cursor:

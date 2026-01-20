@@ -3,6 +3,7 @@
 import socketio
 
 from app.socket_gateway.auth import authenticate
+from app.socket_gateway.group_rooms import join_groups_for_sid
 from app.socket_gateway.manager import get_server_manager
 
 # Get Redis manager (may be None if Redis not configured)
@@ -43,6 +44,8 @@ async def connect(sid: str, environ: dict, auth: dict | None = None) -> None:
     user_id = user_data["user_id"]
     # Auto-join user to personal room
     await sio.enter_room(sid, f"user:{user_id}")
+    # Auto-join user to all active group rooms
+    await join_groups_for_sid(user_id=user_id, sid=sid)
 
 
 @sio.event
