@@ -45,3 +45,9 @@ class PermissionDeniedError(AppException):
     """Raised when user lacks required permissions."""
 
     default_message = "Permission denied"
+
+
+class NotFoundError(AppException):
+    """Raised when a requested resource cannot be found or accessed."""
+
+    default_message = "Not found"
