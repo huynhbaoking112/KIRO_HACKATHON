@@ -1,0 +1,123 @@
+# Group Chat (Admin-managed) — Tasks
+
+- [ ] 1. Define domain contracts and persistence rules
+  - [x] 1.1 Add domain models for group chat
+    - References Requirements R1, R2, R3, R5, R6
+    - Create `app/domain/models/group.py`, `app/domain/models/group_member.py`, `app/domain/models/group_message.py`
+    - Keep IDs as string wrappers over Mongo `_id` with `Field(alias="_id")` following existing patterns
+  - [x] 1.2 Add Pydantic schemas for API requests/responses
+    - References Requirements R1, R2, R3, R4, R5, R6
+    - Create `app/domain/schemas/group_chat.py` (or split per entity if preferred)
+    - Define request/response models for:
+      - create group, add/remove member
+      - list user groups (paged)
+      - send message
+      - list messages (cursor + next_cursor)
+  - [x] 1.3 Extend MongoDB index creation for group chat collections
+    - References Requirements R4, R6, Design Data Models/Indexes
+    - Update `app/infrastructure/database/mongodb.py` to create indexes for `groups`, `group_members`, `group_messages`
+  - [ ] 1.4* Add unit tests for schema validation*
+    - Validates Design Property 8 (ordering fields) indirectly
+    - Test required fields, max lengths, and cursor encode/decode helpers if introduced
+
+- [ ] 2. Implement repositories (MongoDB)
+  - [x] 2.1 Implement `GroupRepository` (groups collection)
+    - References Requirements R1
+    - Create `app/repo/group_repo.py` with create/get_by_id/list helpers (soft-delete aware if implemented)
+  - [x] 2.2 Implement `GroupMemberRepository` (group_members collection)
+    - References Requirements R1, R2, R3, R4, R5, R6, R7
+    - Create `app/repo/group_member_repo.py` with:
+      - upsert_active_member(group_id, user_id, admin_id)
+      - set_removed(group_id, user_id, admin_id)
+      - is_active_member(group_id, user_id)
+      - list_groups_for_user(user_id, pagination)
+      - list_active_group_ids_for_user(user_id) (for socket connect)
+  - [x] 2.3 Implement `GroupMessageRepository` (group_messages collection) with cursor pagination
+    - References Requirements R5, R6, Design Pagination Choice
+    - Create `app/repo/group_message_repo.py` with:
+      - create_message(group_id, sender_id, content, client_msg_id?)
+      - list_messages(group_id, cursor?, limit) ordered by `(created_at DESC, _id DESC)`
+      - encode/decode cursor utilities (opaque string) returning `(created_at, id)`
+  - [ ] 2.4* Add unit tests for repository query behavior*
+    - Validates Design Property 8
+    - Include cursor paging (no duplicates across pages) and deterministic ordering
+
+- [ ] 3. Implement services (authorization + orchestration + emits)
+  - [x] 3.1 Implement `GroupService` for admin operations and user group listing
+    - References Requirements R1, R2, R3, R4; Design Properties 1, 2, 3, 4
+    - Create `app/services/business/group_service.py`
+    - Enforce:
+      - admin-only create/add/remove via API dependency (service assumes admin_id already verified)
+      - non-leaking behavior for user reads (return `None` / raise domain exception mapped to `404`)
+    - Ensure group creation auto-adds creator as member (R1)
+  - [x] 3.2 Implement `GroupMessageService` for send/list messages with membership checks
+    - References Requirements R5, R6; Design Properties 4, 5, 8
+    - Create `app/services/business/group_message_service.py`
+    - Enforce membership check at send-time and read-time
+    - Persist message before emitting `group:message:created` (Property 5)
+  - [x] 3.3 Add service-level error mapping primitives for “404 for non-member or missing group”
+    - References Requirements “non-leaking 404”; Design Error Handling
+    - Reuse existing exception patterns if present, otherwise add a small domain exception type
+  - [ ] 3.4* Write property-based test for Property 3: Membership idempotency*
+    - Validates Requirements R2, R3; Design Property 3
+    - Generate random sequences of add/remove operations and assert final state + no duplicates
+    - Minimum 100 test iterations
+  - [ ] 3.5* Write property-based test for Property 4: Membership-gated 404*
+    - Validates Requirements R3, R5, R6; Design Property 4
+    - For random users/groups not in membership, assert send/history always return NotFound
+    - Minimum 100 test iterations
+  - [ ] 3.6* Write property-based test for Property 8: Deterministic pagination*
+    - Validates Requirements R6; Design Property 8
+    - Generate random messages with timestamps/ids and assert paging returns stable, non-overlapping pages
+    - Minimum 100 test iterations
+
+- [ ] 4. Wire Socket.IO integration (rooms + membership events)
+  - [x] 4.1 Add group chat socket event constants
+    - References Requirements R2, R3, R5, R7
+    - Update `app/common/event_socket.py` to add `GroupChatEvents` with:
+      - `group:member:added`, `group:member:removed`, `group:message:created`
+  - [x] 4.2 Join group rooms on Socket.IO connect based on active memberships
+    - References Requirements R7; Design Property 6
+    - Update `app/socket_gateway/server.py` connect handler to:
+      - query active group ids for user
+      - `enter_room(sid, group:{group_id})` for each
+  - [x] 4.3 Implement helper to join/leave all active sockets of a user to/from a group room
+    - References Requirements R2, R3; Design “SID discovery approach”
+    - Implement in a small module (e.g. `app/socket_gateway/group_rooms.py`) or within service:
+      - `get_user_sids(user_id)` from room `user:{user_id}`
+      - `join_user_to_group_room(user_id, group_id)`
+      - `remove_user_from_group_room(user_id, group_id)`
+  - [x] 4.4 Emit membership change events to user room and enforce kick on removal
+    - References Requirements R2, R3, R7; Design Property 7
+    - In `GroupService` add/remove, after DB update:
+      - join/leave sockets from `group:{group_id}`
+      - emit `group:member:added` / `group:member:removed` to `user:{user_id}`
+  - [ ] 4.5* Add unit tests that mock socket server methods*
+    - Validates Design Property 7
+    - Assert `enter_room`/`leave_room` called for all sids returned by participants
+
+- [ ] 5. Add HTTP endpoints and dependency wiring
+  - [x] 5.1 Create Group Chat routers (admin + user endpoints)
+    - References Requirements R1–R6; Design API contracts
+    - Add `app/api/v1/business/group_chat.py` (or `app/api/v1/business/groups.py`) with:
+      - admin endpoints using `require_admin`
+      - user endpoints using `get_current_active_user`
+      - `404` mapping for non-member/non-existent group
+  - [x] 5.2 Register router under v1 aggregate router
+    - References Requirements R1–R6
+    - Update `app/api/v1/router.py` to include new router
+  - [x] 5.3 Add repo/service factories
+    - References Design “Components and Interfaces”
+    - Update `app/common/repo.py` to add singleton factories for new repositories
+    - Update `app/common/service.py` to add factories for `GroupService` and `GroupMessageService`
+  - [x] 5.4 Ensure route handlers are thin (delegate to services)
+    - References AGENTS.md “No business logic in routes”
+  - [ ] 5.5* Add integration tests for admin/user flows*
+    - Validates Requirements R1–R6; Design Properties 1, 2, 4, 5
+    - Use httpx test client and a test database fixture
+
+- [ ] 6. Checkpoints
+  - [ ] 6.1 Checkpoint: ensure app imports cleanly and server starts
+    - Ensure all tests pass, ask the user if questions arise.
+  - [ ] 6.2 Checkpoint: verify core flows via automated tests (create group → add user → send message → remove user → access denied)
+    - Ensure all tests pass, ask the user if questions arise.

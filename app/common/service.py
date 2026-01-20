@@ -4,6 +4,9 @@ from functools import lru_cache
 
 from app.common.repo import (
     get_conversation_repo,
+    get_group_member_repo,
+    get_group_message_repo,
+    get_group_repo,
     get_message_repo,
     get_sheet_connection_repo,
     get_sheet_data_repo,
@@ -20,6 +23,8 @@ from app.services.ai.pipeline_validator import PipelineValidator
 from app.services.analytics.analytics_service import AnalyticsService
 from app.services.analytics.cache_manager import AnalyticsCacheManager
 from app.services.auth.auth_service import AuthService
+from app.services.business.group_message_service import GroupMessageService
+from app.services.business.group_service import GroupService
 from app.services.sheet_crawler.crawler_service import SheetCrawlerService
 
 
@@ -120,6 +125,22 @@ def get_chat_service() -> ChatService:
     conversation_service = get_conversation_service()
     data_query_service = get_data_query_service()
     return ChatService(conversation_service, data_query_service)
+
+
+@lru_cache
+def get_group_service() -> GroupService:
+    """Get singleton GroupService instance."""
+    group_repo = get_group_repo()
+    group_member_repo = get_group_member_repo()
+    return GroupService(group_repo, group_member_repo)
+
+
+@lru_cache
+def get_group_message_service() -> GroupMessageService:
+    """Get singleton GroupMessageService instance."""
+    group_message_repo = get_group_message_repo()
+    group_member_repo = get_group_member_repo()
+    return GroupMessageService(group_message_repo, group_member_repo)
 
 
 @lru_cache
