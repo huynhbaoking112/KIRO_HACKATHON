@@ -90,3 +90,57 @@ class MongoDB:
             background=True,
         )
         logger.info("Created index: idx_messages_conversation_deleted_created")
+
+        # Index for groups collection
+        await cls.db.groups.create_index(
+            [
+                ("deleted_at", ASCENDING),
+            ],
+            name="idx_groups_deleted",
+            background=True,
+        )
+        logger.info("Created index: idx_groups_deleted")
+
+        # Indexes for group_members collection
+        await cls.db.group_members.create_index(
+            [
+                ("group_id", ASCENDING),
+                ("user_id", ASCENDING),
+            ],
+            name="uniq_group_members_group_user",
+            unique=True,
+            background=True,
+        )
+        logger.info("Created index: uniq_group_members_group_user")
+
+        await cls.db.group_members.create_index(
+            [
+                ("user_id", ASCENDING),
+                ("removed_at", ASCENDING),
+            ],
+            name="idx_group_members_user_removed",
+            background=True,
+        )
+        logger.info("Created index: idx_group_members_user_removed")
+
+        await cls.db.group_members.create_index(
+            [
+                ("group_id", ASCENDING),
+                ("removed_at", ASCENDING),
+            ],
+            name="idx_group_members_group_removed",
+            background=True,
+        )
+        logger.info("Created index: idx_group_members_group_removed")
+
+        # Index for group_messages collection
+        await cls.db.group_messages.create_index(
+            [
+                ("group_id", ASCENDING),
+                ("created_at", DESCENDING),
+                ("_id", DESCENDING),
+            ],
+            name="idx_group_messages_group_created",
+            background=True,
+        )
+        logger.info("Created index: idx_group_messages_group_created")
