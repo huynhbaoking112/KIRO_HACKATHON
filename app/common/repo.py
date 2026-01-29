@@ -9,6 +9,9 @@ from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
 from app.repo.sheet_data_repo import SheetDataRepository
 from app.repo.conversation_repo import ConversationRepository
 from app.repo.message_repo import MessageRepository
+from app.repo.group_repo import GroupRepository
+from app.repo.group_member_repo import GroupMemberRepository
+from app.repo.group_message_repo import GroupMessageRepository
 
 
 @lru_cache
@@ -75,3 +78,24 @@ def get_message_repo() -> MessageRepository:
     """
     db = MongoDB.get_db()
     return MessageRepository(db)
+
+
+@lru_cache
+def get_group_repo() -> GroupRepository:
+    """Get singleton GroupRepository instance."""
+    db = MongoDB.get_db()
+    return GroupRepository(db)
+
+
+@lru_cache
+def get_group_member_repo() -> GroupMemberRepository:
+    """Get singleton GroupMemberRepository instance."""
+    db = MongoDB.get_db()
+    return GroupMemberRepository(db)
+
+
+@lru_cache
+def get_group_message_repo() -> GroupMessageRepository:
+    """Get singleton GroupMessageRepository instance."""
+    db = MongoDB.get_db()
+    return GroupMessageRepository(db)

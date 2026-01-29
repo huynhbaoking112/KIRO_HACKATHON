@@ -13,6 +13,9 @@ from app.domain.models.message import (
     TokenUsage,
     ToolCall,
 )
+from app.domain.models.group import Group
+from app.domain.models.group_member import GroupMember
+from app.domain.models.group_message import GroupMessage
 from app.domain.models.sheet_connection import (
     SheetConnection,
     SheetRawData,
@@ -32,6 +35,10 @@ __all__ = [
     "MessageRole",
     "TokenUsage",
     "ToolCall",
+    # Group chat models
+    "Group",
+    "GroupMember",
+    "GroupMessage",
     # Sheet models
     "SheetConnection",
     "SheetRawData",

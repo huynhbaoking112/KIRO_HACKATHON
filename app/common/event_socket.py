@@ -23,3 +23,11 @@ class ChatEvents:
     MESSAGE_TOOL_END = "chat:message:tool_end"
     MESSAGE_COMPLETED = "chat:message:completed"
     MESSAGE_FAILED = "chat:message:failed"
+
+
+class GroupChatEvents:
+    """Socket events for group chat."""
+
+    MEMBER_ADDED = "group:member:added"
+    MEMBER_REMOVED = "group:member:removed"
+    MESSAGE_CREATED = "group:message:created"
