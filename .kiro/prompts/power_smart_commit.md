@@ -1,1 +1,0 @@
-Dùng smart commit power tạo commit giúp tôi trong codebase hiện tại
