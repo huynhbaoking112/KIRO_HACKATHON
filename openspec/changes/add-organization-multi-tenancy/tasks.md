@@ -18,13 +18,13 @@
 
 ## 3. Repositories
 
-- [ ] 3.1 Create OrganizationRepository in `app/repo/organization_repo.py` with methods: create, find_by_id, find_by_slug, list_all, update, deactivate
-- [ ] 3.2 Create OrganizationMemberRepository in `app/repo/organization_member_repo.py` with methods: create, find_by_user_and_org, list_by_organization, list_by_user, update_role, remove
-- [ ] 3.3 Add list_all method to UserRepository in `app/repo/user_repo.py`
-- [ ] 3.4 Add update_password method to UserRepository in `app/repo/user_repo.py`
-- [ ] 3.5 Add update_is_active method to UserRepository in `app/repo/user_repo.py`
-- [ ] 3.6 Update ConversationRepository to support organization_id filtering
-- [ ] 3.7 Update SheetConnectionRepository to support organization_id filtering
+- [x] 3.1 Create OrganizationRepository in `app/repo/organization_repo.py` with methods: create, find_by_id, find_by_slug, list_all, update, deactivate
+- [x] 3.2 Create OrganizationMemberRepository in `app/repo/organization_member_repo.py` with methods: create, find_by_user_and_org, list_by_organization, list_by_user, update_role, remove
+- [x] 3.3 Add list_all method to UserRepository in `app/repo/user_repo.py`
+- [x] 3.4 Add update_password method to UserRepository in `app/repo/user_repo.py`
+- [x] 3.5 Add update_is_active method to UserRepository in `app/repo/user_repo.py`
+- [x] 3.6 Update ConversationRepository to support organization_id filtering
+- [x] 3.7 Update SheetConnectionRepository to support organization_id filtering
 
 ## 4. Database Indexes
 

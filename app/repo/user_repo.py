@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.domain.models.user import User, UserRole
@@ -81,10 +82,86 @@ class UserRepository:
         """
         try:
             object_id = ObjectId(user_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return None
 
         user_doc = await self.collection.find_one({"_id": object_id})
+
+        if user_doc is None:
+            return None
+
+        user_doc["_id"] = str(user_doc["_id"])
+        return User(**user_doc)
+
+    async def list_all(
+        self,
+        *,
+        skip: int = 0,
+        limit: int = 100,
+        is_active: Optional[bool] = None,
+    ) -> list[User]:
+        """List users with optional active-state filtering."""
+        query: dict = {}
+        if is_active is not None:
+            query["is_active"] = is_active
+
+        cursor = self.collection.find(query).sort("created_at", -1).skip(skip).limit(limit)
+        users: list[User] = []
+        async for user_doc in cursor:
+            user_doc["_id"] = str(user_doc["_id"])
+            users.append(User(**user_doc))
+
+        return users
+
+    async def update_password(
+        self,
+        user_id: str,
+        hashed_password: str,
+    ) -> Optional[User]:
+        """Update hashed password of a user."""
+        try:
+            object_id = ObjectId(user_id)
+        except (TypeError, ValueError, InvalidId):
+            return None
+
+        user_doc = await self.collection.find_one_and_update(
+            {"_id": object_id},
+            {
+                "$set": {
+                    "hashed_password": hashed_password,
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            },
+            return_document=True,
+        )
+
+        if user_doc is None:
+            return None
+
+        user_doc["_id"] = str(user_doc["_id"])
+        return User(**user_doc)
+
+    async def update_is_active(
+        self,
+        user_id: str,
+        is_active: bool,
+    ) -> Optional[User]:
+        """Update active status of a user."""
+        try:
+            object_id = ObjectId(user_id)
+        except (TypeError, ValueError, InvalidId):
+            return None
+
+        user_doc = await self.collection.find_one_and_update(
+            {"_id": object_id},
+            {
+                "$set": {
+                    "is_active": is_active,
+                    "updated_at": datetime.now(timezone.utc),
+                }
+            },
+            return_document=True,
+        )
 
         if user_doc is None:
             return None

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
@@ -39,6 +40,7 @@ class ConversationRepository:
         self,
         user_id: str,
         title: Optional[str] = None,
+        organization_id: Optional[str] = None,
     ) -> Conversation:
         """Create a new conversation in database.
 
@@ -54,6 +56,7 @@ class ConversationRepository:
         now = datetime.now(timezone.utc)
         conversation_data = {
             "user_id": user_id,
+            "organization_id": organization_id,
             "title": title or self.DEFAULT_TITLE,
             "status": ConversationStatus.ACTIVE.value,
             "message_count": 0,
@@ -68,7 +71,11 @@ class ConversationRepository:
 
         return Conversation(**conversation_data)
 
-    async def get_by_id(self, conversation_id: str) -> Optional[Conversation]:
+    async def get_by_id(
+        self,
+        conversation_id: str,
+        organization_id: Optional[str] = None,
+    ) -> Optional[Conversation]:
         """Get a conversation by ID, excluding soft-deleted records.
 
         Args:
@@ -81,15 +88,17 @@ class ConversationRepository:
         """
         try:
             object_id = ObjectId(conversation_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return None
 
-        doc = await self.collection.find_one(
-            {
-                "_id": object_id,
-                "deleted_at": None,
-            }
-        )
+        query: dict = {
+            "_id": object_id,
+            "deleted_at": None,
+        }
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
+        doc = await self.collection.find_one(query)
 
         if doc is None:
             return None
@@ -100,6 +109,7 @@ class ConversationRepository:
     async def get_by_user(
         self,
         user_id: str,
+        organization_id: Optional[str] = None,
         skip: int = 0,
         limit: int = 20,
     ) -> list[Conversation]:
@@ -117,16 +127,15 @@ class ConversationRepository:
 
         Requirements: 1.2, 1.6
         """
+        query: dict = {
+            "user_id": user_id,
+            "deleted_at": None,
+        }
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
         cursor = (
-            self.collection.find(
-                {
-                    "user_id": user_id,
-                    "deleted_at": None,
-                }
-            )
-            .sort("updated_at", -1)
-            .skip(skip)
-            .limit(limit)
+            self.collection.find(query).sort("updated_at", -1).skip(skip).limit(limit)
         )
 
         conversations = []
@@ -139,6 +148,7 @@ class ConversationRepository:
     async def search_by_user(
         self,
         user_id: str,
+        organization_id: Optional[str] = None,
         status: Optional[ConversationStatus] = None,
         search: Optional[str] = None,
         skip: int = 0,
@@ -163,6 +173,8 @@ class ConversationRepository:
             "user_id": user_id,
             "deleted_at": None,
         }
+        if organization_id is not None:
+            query["organization_id"] = organization_id
 
         if status is not None:
             query["status"] = status.value
@@ -193,6 +205,7 @@ class ConversationRepository:
         status: Optional[ConversationStatus] = None,
         message_count: Optional[int] = None,
         last_message_at: Optional[datetime] = None,
+        organization_id: Optional[str] = None,
     ) -> Optional[Conversation]:
         """Update a conversation's fields.
 
@@ -213,7 +226,7 @@ class ConversationRepository:
         """
         try:
             object_id = ObjectId(conversation_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return None
 
         update_data = {"updated_at": datetime.now(timezone.utc)}
@@ -227,8 +240,12 @@ class ConversationRepository:
         if last_message_at is not None:
             update_data["last_message_at"] = last_message_at
 
+        query: dict = {"_id": object_id, "deleted_at": None}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
         result = await self.collection.find_one_and_update(
-            {"_id": object_id, "deleted_at": None},
+            query,
             {"$set": update_data},
             return_document=True,
         )
@@ -239,7 +256,11 @@ class ConversationRepository:
         result["_id"] = str(result["_id"])
         return Conversation(**result)
 
-    async def soft_delete(self, conversation_id: str) -> bool:
+    async def soft_delete(
+        self,
+        conversation_id: str,
+        organization_id: Optional[str] = None,
+    ) -> bool:
         """Soft delete a conversation by setting deleted_at timestamp.
 
         The record remains in the database but will be excluded from queries.
@@ -254,12 +275,16 @@ class ConversationRepository:
         """
         try:
             object_id = ObjectId(conversation_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return False
 
         now = datetime.now(timezone.utc)
+        query: dict = {"_id": object_id, "deleted_at": None}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
         result = await self.collection.update_one(
-            {"_id": object_id, "deleted_at": None},
+            query,
             {"$set": {"deleted_at": now, "updated_at": now}},
         )
 
@@ -269,6 +294,7 @@ class ConversationRepository:
         self,
         conversation_id: str,
         last_message_at: Optional[datetime] = None,
+        organization_id: Optional[str] = None,
     ) -> Optional[Conversation]:
         """Increment the message count for a conversation.
 
@@ -285,14 +311,18 @@ class ConversationRepository:
         """
         try:
             object_id = ObjectId(conversation_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return None
 
         now = datetime.now(timezone.utc)
         message_time = last_message_at or now
 
+        query: dict = {"_id": object_id, "deleted_at": None}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
         result = await self.collection.find_one_and_update(
-            {"_id": object_id, "deleted_at": None},
+            query,
             {
                 "$inc": {"message_count": 1},
                 "$set": {
