@@ -5,6 +5,7 @@ from typing import Optional
 from app.common.exceptions import (
     AppException,
     EmailAlreadyExistsError,
+    OrganizationNotFoundError,
     PermissionDeniedError,
     UserNotFoundError,
 )
@@ -56,7 +57,7 @@ class UserService:
         if organization_id is not None:
             organization = await self.organization_repo.find_by_id(organization_id)
             if organization is None or not organization.is_active:
-                raise AppException("Organization not found")
+                raise OrganizationNotFoundError()
 
         new_user = await self.user_repo.create(
             email=email,
@@ -218,7 +219,7 @@ class UserService:
         """Ensure the actor is active ADMIN member of organization."""
         organization = await self.organization_repo.find_by_id(organization_id)
         if organization is None or not organization.is_active:
-            raise AppException("Organization not found")
+            raise OrganizationNotFoundError()
 
         member = await self.member_repo.find_by_user_and_org(
             user_id=actor_user_id,

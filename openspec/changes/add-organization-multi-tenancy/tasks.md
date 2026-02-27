@@ -99,10 +99,10 @@
 
 ## 13. Exceptions
 
-- [ ] 13.1 Add OrganizationNotFoundError to `app/common/exceptions.py`
-- [ ] 13.2 Add AlreadyMemberError to `app/common/exceptions.py`
-- [ ] 13.3 Add NotMemberError to `app/common/exceptions.py`
-- [ ] 13.4 Add PermissionDeniedError to `app/common/exceptions.py` (if not exists)
+- [x] 13.1 Add OrganizationNotFoundError to `app/common/exceptions.py`
+- [x] 13.2 Add AlreadyMemberError to `app/common/exceptions.py`
+- [x] 13.3 Add NotMemberError to `app/common/exceptions.py`
+- [x] 13.4 Add PermissionDeniedError to `app/common/exceptions.py` (if not exists)
 
 ## 14. Testing
 

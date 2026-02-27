@@ -40,6 +40,27 @@ class UserNotFoundError(AppException):
     status_code = 404
 
 
+class OrganizationNotFoundError(AppException):
+    """Raised when organization is not found."""
+
+    default_message = "Organization not found"
+    status_code = 404
+
+
+class AlreadyMemberError(AppException):
+    """Raised when user is already an active member of organization."""
+
+    default_message = "Already a member"
+    status_code = 400
+
+
+class NotMemberError(AppException):
+    """Raised when user is not a member of organization."""
+
+    default_message = "Not a member"
+    status_code = 404
+
+
 class InactiveUserError(AppException):
     """Raised when user account is inactive."""
 

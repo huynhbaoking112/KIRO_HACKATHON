@@ -4,7 +4,10 @@ import re
 from typing import Optional
 
 from app.common.exceptions import (
+    AlreadyMemberError,
     AppException,
+    NotMemberError,
+    OrganizationNotFoundError,
     PermissionDeniedError,
     UserNotFoundError,
 )
@@ -127,7 +130,7 @@ class OrganizationService:
             is_active=True,
         )
         if existing_member is not None:
-            raise AppException("Already a member")
+            raise AlreadyMemberError()
 
         return await self.member_repo.create(
             user_id=target_user.id,
@@ -158,7 +161,7 @@ class OrganizationService:
             is_active=True,
         )
         if member is None:
-            raise AppException("Not a member")
+            raise NotMemberError()
 
         return await self.member_repo.remove(
             user_id=user_id,
@@ -188,7 +191,7 @@ class OrganizationService:
             is_active=True,
         )
         if member is None:
-            raise AppException("Not a member")
+            raise NotMemberError()
 
         return await self.member_repo.update_role(
             user_id=user_id,
@@ -256,7 +259,7 @@ class OrganizationService:
         """Check whether actor can add/remove/change members in the organization."""
         organization = await self.organization_repo.find_by_id(organization_id)
         if organization is None or not organization.is_active:
-            raise AppException("Organization not found")
+            raise OrganizationNotFoundError()
 
         if self._is_super_admin(actor_user):
             return
@@ -282,7 +285,7 @@ class OrganizationService:
         """Check whether actor is a member of the organization."""
         organization = await self.organization_repo.find_by_id(organization_id)
         if organization is None or not organization.is_active:
-            raise AppException("Organization not found")
+            raise OrganizationNotFoundError()
 
         if self._is_super_admin(actor_user):
             return
