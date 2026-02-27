@@ -63,10 +63,10 @@
 
 ## 8. Membership API Endpoints
 
-- [ ] 8.1 Implement POST /api/v1/organizations/{org_id}/members - add member
-- [ ] 8.2 Implement GET /api/v1/organizations/{org_id}/members - list members
-- [ ] 8.3 Implement PATCH /api/v1/organizations/{org_id}/members/{user_id} - change role
-- [ ] 8.4 Implement DELETE /api/v1/organizations/{org_id}/members/{user_id} - remove member
+- [x] 8.1 Implement POST /api/v1/organizations/{org_id}/members - add member
+- [x] 8.2 Implement GET /api/v1/organizations/{org_id}/members - list members
+- [x] 8.3 Implement PATCH /api/v1/organizations/{org_id}/members/{user_id} - change role
+- [x] 8.4 Implement DELETE /api/v1/organizations/{org_id}/members/{user_id} - remove member
 
 ## 9. User Management API Endpoints
 

@@ -4,10 +4,12 @@ import logging
 from contextlib import asynccontextmanager
 
 import socketio
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.v1.router import router as v1_router
+from app.common.exceptions import AppException
 from app.config.mcp import MCP_SERVERS
 from app.config.settings import get_settings
 from app.infrastructure.database.mongodb import MongoDB
@@ -75,6 +77,15 @@ app = FastAPI(
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
+
+
+@app.exception_handler(AppException)
+async def app_exception_handler(request: Request, exc: AppException):
+    """Global handler for all AppException and subclasses."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.message},
+    )
 
 # CORS middleware - allow frontend origins
 app.add_middleware(
