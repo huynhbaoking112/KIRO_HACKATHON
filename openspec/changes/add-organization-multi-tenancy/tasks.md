@@ -87,8 +87,8 @@
 
 ## 11. Router Registration
 
-- [ ] 11.1 Register organizations router in `app/api/v1/router.py`
-- [ ] 11.2 Register users router in `app/api/v1/router.py`
+- [x] 11.1 Register organizations router in `app/api/v1/router.py`
+- [x] 11.2 Register users router in `app/api/v1/router.py`
 
 ## 12. Update Existing Endpoints
 
