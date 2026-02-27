@@ -10,7 +10,11 @@ from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 
-from app.api.deps import get_current_active_user
+from app.api.deps import (
+    OrganizationContext,
+    get_current_active_user,
+    get_current_organization_context,
+)
 from app.common.service import get_chat_service
 from app.domain.models.conversation import ConversationStatus
 from app.domain.models.user import User
@@ -32,6 +36,7 @@ async def send_message(
     request: SendMessageRequest,
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> SendMessageResponse:
     """Send a message and trigger async agent processing.
@@ -59,7 +64,8 @@ async def send_message(
     # Validate conversation exists if conversation_id is provided
     if request.conversation_id is not None:
         conversation = await chat_service.conversation_service.get_conversation(
-            request.conversation_id
+            request.conversation_id,
+            organization_id=org_context.organization_id,
         )
         if conversation is None:
             raise HTTPException(
@@ -78,6 +84,7 @@ async def send_message(
         user_id=user_id,
         content=request.content,
         conversation_id=request.conversation_id,
+        organization_id=org_context.organization_id,
     )
 
     # Add background task to process agent response
@@ -85,6 +92,7 @@ async def send_message(
         chat_service.process_agent_response,
         user_id=user_id,
         conversation_id=conversation_id,
+        organization_id=org_context.organization_id,
     )
 
     return SendMessageResponse(
@@ -100,6 +108,7 @@ async def list_conversations(
     status: Optional[ConversationStatus] = Query(default=None),
     search: Optional[str] = Query(default=None, max_length=100),
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> ConversationListResponse:
     """List conversations for the authenticated user.
@@ -122,6 +131,7 @@ async def list_conversations(
     """
     result = await chat_service.search_conversations(
         user_id=current_user.id,
+        organization_id=org_context.organization_id,
         status=status,
         search=search,
         skip=skip,
@@ -153,6 +163,7 @@ async def list_conversations(
 async def get_conversation_messages(
     conversation_id: str,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     chat_service: ChatService = Depends(get_chat_service),
 ) -> MessageListResponse:
     """Get all messages for a conversation.
@@ -175,7 +186,8 @@ async def get_conversation_messages(
     """
     # Verify conversation exists and user owns it
     conversation = await chat_service.conversation_service.get_conversation(
-        conversation_id
+        conversation_id,
+        organization_id=org_context.organization_id,
     )
     if conversation is None or conversation.user_id != current_user.id:
         raise HTTPException(

@@ -8,7 +8,11 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from app.api.deps import get_current_active_user
+from app.api.deps import (
+    OrganizationContext,
+    get_current_active_user,
+    get_current_organization_context,
+)
 from app.common.repo import (
     get_sheet_connection_repo,
     get_sheet_data_repo,
@@ -46,6 +50,7 @@ router = APIRouter(prefix="/sheet-connections", tags=["sheet-crawler"])
 @router.get("/service-account", response_model=ServiceAccountInfoResponse)
 async def get_service_account_info(
     _: User = Depends(get_current_active_user),
+    __: OrganizationContext = Depends(get_current_organization_context),
 ) -> ServiceAccountInfoResponse:
     """Get service account information for sharing Google Sheets.
 
@@ -72,6 +77,7 @@ async def get_service_account_info(
 async def create_connection(
     request: CreateConnectionRequest,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     sheet_client=Depends(get_google_sheet_client),
     queue: RedisQueue = Depends(get_redis_queue),
@@ -109,13 +115,18 @@ async def create_connection(
         ) from e
 
     # Create connection
-    connection = await connection_repo.create(current_user.id, request)
+    connection = await connection_repo.create(
+        current_user.id,
+        request,
+        organization_id=org_context.organization_id,
+    )
 
     # Trigger initial sync by enqueuing task to Redis queue
     settings = get_settings()
     task_data = {
         "connection_id": connection.id,
         "user_id": current_user.id,
+        "organization_id": org_context.organization_id,
         "retry_count": 0,
     }
     await queue.enqueue(settings.SHEET_SYNC_QUEUE_NAME, task_data)
@@ -139,6 +150,7 @@ async def create_connection(
 @router.get("", response_model=list[ConnectionResponse])
 async def list_connections(
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
 ) -> list[ConnectionResponse]:
     """List all sheet connections for the current user.
@@ -150,7 +162,10 @@ async def list_connections(
     Returns:
         List of connection details
     """
-    connections = await connection_repo.find_by_user_id(current_user.id)
+    connections = await connection_repo.find_by_user_id(
+        current_user.id,
+        organization_id=org_context.organization_id,
+    )
 
     return [
         ConnectionResponse(
@@ -170,6 +185,7 @@ async def list_connections(
 async def get_connection(
     connection_id: str,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
 ) -> ConnectionResponse:
     """Get a specific sheet connection by ID.
@@ -185,7 +201,10 @@ async def get_connection(
     Raises:
         HTTPException: 404 if connection not found or belongs to another user
     """
-    connection = await connection_repo.find_by_id(connection_id)
+    connection = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
 
     if connection is None or connection.user_id != current_user.id:
         raise HTTPException(
@@ -209,6 +228,7 @@ async def update_connection(
     connection_id: str,
     request: UpdateConnectionRequest,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
 ) -> ConnectionResponse:
     """Update a sheet connection.
@@ -226,7 +246,10 @@ async def update_connection(
         HTTPException: 404 if connection not found or belongs to another user
     """
     # Verify ownership first
-    existing = await connection_repo.find_by_id(connection_id)
+    existing = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
     if existing is None or existing.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -234,7 +257,11 @@ async def update_connection(
         )
 
     # Update connection
-    connection = await connection_repo.update(connection_id, request)
+    connection = await connection_repo.update(
+        connection_id,
+        request,
+        organization_id=org_context.organization_id,
+    )
 
     if connection is None:
         raise HTTPException(
@@ -257,6 +284,7 @@ async def update_connection(
 async def delete_connection(
     connection_id: str,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     sync_state_repo: SheetSyncStateRepository = Depends(get_sheet_sync_state_repo),
     data_repo: SheetDataRepository = Depends(get_sheet_data_repo),
@@ -276,7 +304,10 @@ async def delete_connection(
         HTTPException: 404 if connection not found or belongs to another user
     """
     # Verify ownership first
-    existing = await connection_repo.find_by_id(connection_id)
+    existing = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
     if existing is None or existing.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -288,7 +319,10 @@ async def delete_connection(
     await data_repo.delete_by_connection_id(connection_id)
 
     # Delete connection
-    await connection_repo.delete(connection_id)
+    await connection_repo.delete(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
 
 
 # Sync operations
@@ -298,6 +332,7 @@ async def delete_connection(
 async def trigger_sync(
     connection_id: str,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     queue: RedisQueue = Depends(get_redis_queue),
 ) -> dict:
@@ -318,7 +353,10 @@ async def trigger_sync(
         HTTPException: 404 if connection not found or belongs to another user
     """
     # Verify ownership
-    connection = await connection_repo.find_by_id(connection_id)
+    connection = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
     if connection is None or connection.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -330,6 +368,7 @@ async def trigger_sync(
     task_data = {
         "connection_id": connection_id,
         "user_id": current_user.id,
+        "organization_id": org_context.organization_id,
         "retry_count": 0,
     }
     await queue.enqueue(settings.SHEET_SYNC_QUEUE_NAME, task_data)
@@ -345,6 +384,7 @@ async def trigger_sync(
 async def get_sync_status(
     connection_id: str,
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     sync_state_repo: SheetSyncStateRepository = Depends(get_sheet_sync_state_repo),
 ) -> SyncStatusResponse:
@@ -363,7 +403,10 @@ async def get_sync_status(
         HTTPException: 404 if connection not found or belongs to another user
     """
     # Verify ownership
-    connection = await connection_repo.find_by_id(connection_id)
+    connection = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
     if connection is None or connection.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -402,6 +445,7 @@ async def preview_sheet(
     connection_id: str,
     rows: int = Query(default=10, ge=1, le=50),
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     crawler_service: SheetCrawlerService = Depends(get_crawler_service),
 ) -> SheetPreviewResponse:
@@ -424,7 +468,10 @@ async def preview_sheet(
         HTTPException: 400 if sheet is not accessible
     """
     # Verify ownership
-    connection = await connection_repo.find_by_id(connection_id)
+    connection = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
     if connection is None or connection.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -452,6 +499,7 @@ async def get_synced_data(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     current_user: User = Depends(get_current_active_user),
+    org_context: OrganizationContext = Depends(get_current_organization_context),
     connection_repo: SheetConnectionRepository = Depends(get_sheet_connection_repo),
     data_repo: SheetDataRepository = Depends(get_sheet_data_repo),
 ) -> SheetDataResponse:
@@ -472,7 +520,10 @@ async def get_synced_data(
         HTTPException: 404 if connection not found or belongs to another user
     """
     # Verify ownership
-    connection = await connection_repo.find_by_id(connection_id)
+    connection = await connection_repo.find_by_id(
+        connection_id,
+        organization_id=org_context.organization_id,
+    )
     if connection is None or connection.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

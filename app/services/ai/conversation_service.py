@@ -57,6 +57,7 @@ class ConversationService:
         self,
         user_id: str,
         title: Optional[str] = None,
+        organization_id: Optional[str] = None,
     ) -> Conversation:
         """Create a new conversation with auto title generation.
 
@@ -74,6 +75,7 @@ class ConversationService:
         return await self.conversation_repo.create(
             user_id=user_id,
             title=title,
+            organization_id=organization_id,
         )
 
     async def add_message(
@@ -81,6 +83,7 @@ class ConversationService:
         conversation_id: str,
         role: MessageRole,
         content: str,
+        organization_id: Optional[str] = None,
         attachments: Optional[list[Attachment]] = None,
         metadata: Optional[MessageMetadata] = None,
         is_complete: bool = True,
@@ -117,11 +120,16 @@ class ConversationService:
         await self.conversation_repo.increment_message_count(
             conversation_id=conversation_id,
             last_message_at=message.created_at,
+            organization_id=organization_id,
         )
 
         # Auto-generate title from first user message if conversation has default title
         if role == MessageRole.USER:
-            await self._maybe_update_title_from_message(conversation_id, content)
+            await self._maybe_update_title_from_message(
+                conversation_id,
+                content,
+                organization_id=organization_id,
+            )
 
         return message
 
@@ -129,6 +137,7 @@ class ConversationService:
         self,
         conversation_id: str,
         content: str,
+        organization_id: Optional[str] = None,
     ) -> None:
         """Update conversation title from message content if it has default title.
 
@@ -143,7 +152,10 @@ class ConversationService:
 
         Requirements: 4.2
         """
-        conversation = await self.conversation_repo.get_by_id(conversation_id)
+        conversation = await self.conversation_repo.get_by_id(
+            conversation_id,
+            organization_id=organization_id,
+        )
         if conversation is None:
             return
 
@@ -153,6 +165,7 @@ class ConversationService:
             await self.conversation_repo.update(
                 conversation_id=conversation_id,
                 title=new_title,
+                organization_id=organization_id,
             )
 
     def _generate_title_from_content(self, content: str) -> str:
@@ -276,7 +289,11 @@ class ConversationService:
         # Fallback to HumanMessage for unknown roles
         return HumanMessage(content=content)
 
-    async def delete_conversation(self, conversation_id: str) -> bool:
+    async def delete_conversation(
+        self,
+        conversation_id: str,
+        organization_id: Optional[str] = None,
+    ) -> bool:
         """Soft delete a conversation and all its messages.
 
         Args:
@@ -289,9 +306,16 @@ class ConversationService:
         await self.message_repo.soft_delete_by_conversation(conversation_id)
 
         # Then soft delete the conversation itself
-        return await self.conversation_repo.soft_delete(conversation_id)
+        return await self.conversation_repo.soft_delete(
+            conversation_id,
+            organization_id=organization_id,
+        )
 
-    async def get_conversation(self, conversation_id: str) -> Optional[Conversation]:
+    async def get_conversation(
+        self,
+        conversation_id: str,
+        organization_id: Optional[str] = None,
+    ) -> Optional[Conversation]:
         """Get a conversation by ID.
 
         Args:
@@ -300,11 +324,15 @@ class ConversationService:
         Returns:
             Conversation instance if found, None otherwise
         """
-        return await self.conversation_repo.get_by_id(conversation_id)
+        return await self.conversation_repo.get_by_id(
+            conversation_id,
+            organization_id=organization_id,
+        )
 
     async def get_user_conversations(
         self,
         user_id: str,
+        organization_id: Optional[str] = None,
         skip: int = 0,
         limit: int = 20,
     ) -> list[Conversation]:
@@ -320,6 +348,7 @@ class ConversationService:
         """
         return await self.conversation_repo.get_by_user(
             user_id=user_id,
+            organization_id=organization_id,
             skip=skip,
             limit=limit,
         )
@@ -327,6 +356,7 @@ class ConversationService:
     async def search_user_conversations(
         self,
         user_id: str,
+        organization_id: Optional[str] = None,
         status: Optional[ConversationStatus] = None,
         search: Optional[str] = None,
         skip: int = 0,
@@ -348,6 +378,7 @@ class ConversationService:
         """
         return await self.conversation_repo.search_by_user(
             user_id=user_id,
+            organization_id=organization_id,
             status=status,
             search=search,
             skip=skip,

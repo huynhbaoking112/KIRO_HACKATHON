@@ -92,10 +92,10 @@
 
 ## 12. Update Existing Endpoints
 
-- [ ] 12.1 Update conversation endpoints to require X-Organization-ID header
-- [ ] 12.2 Update sheet connection endpoints to require X-Organization-ID header
-- [ ] 12.3 Update conversation creation to include organization_id
-- [ ] 12.4 Update sheet connection creation to include organization_id
+- [x] 12.1 Update conversation endpoints to require X-Organization-ID header
+- [x] 12.2 Update sheet connection endpoints to require X-Organization-ID header
+- [x] 12.3 Update conversation creation to include organization_id
+- [x] 12.4 Update sheet connection creation to include organization_id
 
 ## 13. Exceptions
 
