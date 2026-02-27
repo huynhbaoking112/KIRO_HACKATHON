@@ -52,7 +52,13 @@ class MongoDB:
         """Create indexes for all collections.
 
         Creates compound indexes for efficient querying:
-        - conversations: (user_id, deleted_at, updated_at DESC) for user listing
+        - organizations: slug (unique), is_active
+        - organization_members: (user_id, organization_id) unique, organization_id,
+          user_id
+        - conversations: (user_id, organization_id, deleted_at, updated_at DESC)
+          for user listing in organization scope
+        - sheet_connections: (user_id, organization_id), (sync_enabled, organization_id)
+          for organization-scoped queries
         - messages: (conversation_id, deleted_at, created_at) for message retrieval
 
         This method is idempotent - calling it multiple times is safe.
@@ -63,19 +69,74 @@ class MongoDB:
         if cls.db is None:
             raise RuntimeError("Database not connected. Call connect() first.")
 
+        # Indexes for organizations collection
+        await cls.db.organizations.create_index(
+            [("slug", ASCENDING)],
+            name="idx_organizations_slug_unique",
+            unique=True,
+            background=True,
+        )
+        logger.info("Created index: idx_organizations_slug_unique")
+
+        await cls.db.organizations.create_index(
+            [("is_active", ASCENDING)],
+            name="idx_organizations_is_active",
+            background=True,
+        )
+        logger.info("Created index: idx_organizations_is_active")
+
+        # Indexes for organization_members collection
+        await cls.db.organization_members.create_index(
+            [("user_id", ASCENDING), ("organization_id", ASCENDING)],
+            name="idx_org_members_user_org_unique",
+            unique=True,
+            background=True,
+        )
+        logger.info("Created index: idx_org_members_user_org_unique")
+
+        await cls.db.organization_members.create_index(
+            [("organization_id", ASCENDING)],
+            name="idx_org_members_organization_id",
+            background=True,
+        )
+        logger.info("Created index: idx_org_members_organization_id")
+
+        await cls.db.organization_members.create_index(
+            [("user_id", ASCENDING)],
+            name="idx_org_members_user_id",
+            background=True,
+        )
+        logger.info("Created index: idx_org_members_user_id")
+
         # Index for conversations collection
         # Supports: get_by_user() with pagination ordered by updated_at DESC
         # Requirements: 1.2 (retrieve by user_id), 1.6 (order by updated_at)
         await cls.db.conversations.create_index(
             [
                 ("user_id", ASCENDING),
+                ("organization_id", ASCENDING),
                 ("deleted_at", ASCENDING),
                 ("updated_at", DESCENDING),
             ],
-            name="idx_conversations_user_deleted_updated",
+            name="idx_conversations_user_org_deleted_updated",
             background=True,
         )
-        logger.info("Created index: idx_conversations_user_deleted_updated")
+        logger.info("Created index: idx_conversations_user_org_deleted_updated")
+
+        # Indexes for sheet_connections collection
+        await cls.db.sheet_connections.create_index(
+            [("user_id", ASCENDING), ("organization_id", ASCENDING)],
+            name="idx_sheet_connections_user_org",
+            background=True,
+        )
+        logger.info("Created index: idx_sheet_connections_user_org")
+
+        await cls.db.sheet_connections.create_index(
+            [("sync_enabled", ASCENDING), ("organization_id", ASCENDING)],
+            name="idx_sheet_connections_sync_org",
+            background=True,
+        )
+        logger.info("Created index: idx_sheet_connections_sync_org")
 
         # Index for messages collection
         # Supports: get_by_conversation() with chronological ordering

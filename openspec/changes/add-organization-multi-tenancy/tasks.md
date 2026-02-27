@@ -28,10 +28,10 @@
 
 ## 4. Database Indexes
 
-- [ ] 4.1 Add organization indexes in `app/infrastructure/database/mongodb.py`: slug (unique), is_active
-- [ ] 4.2 Add organization_members indexes: (user_id, organization_id) unique, organization_id, user_id
-- [ ] 4.3 Update conversations index to include organization_id
-- [ ] 4.4 Update sheet_connections index to include organization_id
+- [x] 4.1 Add organization indexes in `app/infrastructure/database/mongodb.py`: slug (unique), is_active
+- [x] 4.2 Add organization_members indexes: (user_id, organization_id) unique, organization_id, user_id
+- [x] 4.3 Update conversations index to include organization_id
+- [x] 4.4 Update sheet_connections index to include organization_id
 
 ## 5. Services
 
