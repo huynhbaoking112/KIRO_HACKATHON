@@ -54,12 +54,12 @@
 
 ## 7. Organization API Endpoints
 
-- [ ] 7.1 Create organization router in `app/api/v1/organizations/routes.py`
-- [ ] 7.2 Implement POST /api/v1/organizations - create organization (Super Admin only)
-- [ ] 7.3 Implement GET /api/v1/organizations - list organizations (Super Admin only)
-- [ ] 7.4 Implement GET /api/v1/organizations/{org_id} - get organization details
-- [ ] 7.5 Implement PATCH /api/v1/organizations/{org_id} - update organization (Super Admin only)
-- [ ] 7.6 Implement DELETE /api/v1/organizations/{org_id} - deactivate organization (Super Admin only)
+- [x] 7.1 Create organization router in `app/api/v1/organizations/routes.py`
+- [x] 7.2 Implement POST /api/v1/organizations - create organization (Super Admin only)
+- [x] 7.3 Implement GET /api/v1/organizations - list organizations (Super Admin only)
+- [x] 7.4 Implement GET /api/v1/organizations/{org_id} - get organization details
+- [x] 7.5 Implement PATCH /api/v1/organizations/{org_id} - update organization (Super Admin only)
+- [x] 7.6 Implement DELETE /api/v1/organizations/{org_id} - deactivate organization (Super Admin only)
 
 ## 8. Membership API Endpoints
 
