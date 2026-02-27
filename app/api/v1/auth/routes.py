@@ -9,8 +9,8 @@ from app.common.exceptions import (
     InactiveUserError,
 )
 from app.domain.schemas.auth import (
+    CreateUserRequest,
     LoginRequest,
-    RegisterRequest,
     TokenResponse,
     UserResponse,
 )
@@ -23,13 +23,13 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
 )
 async def register(
-    request: RegisterRequest,
+    request: CreateUserRequest,
     auth_service: AuthService = Depends(get_auth_service),
 ) -> UserResponse:
     """Register a new user with email and password.
 
     Args:
-        request: RegisterRequest with email and password
+        request: CreateUserRequest with email and password
         auth_service: AuthService dependency
 
     Returns:

@@ -10,11 +10,11 @@
 
 ## 2. Schemas
 
-- [ ] 2.1 Create organization schemas in `app/domain/schemas/organization.py`: CreateOrganizationRequest, UpdateOrganizationRequest, OrganizationResponse, OrganizationDetailResponse
-- [ ] 2.2 Create membership schemas in `app/domain/schemas/organization.py`: AddMemberRequest, UpdateMemberRoleRequest, OrganizationMemberResponse, UserOrganizationResponse
-- [ ] 2.3 Create user management schemas in `app/domain/schemas/auth.py`: CreateUserRequest, CreateUserResponse, ChangePasswordRequest, ResetPasswordRequest
-- [ ] 2.4 Remove RegisterRequest schema from `app/domain/schemas/auth.py`
-- [ ] 2.5 Update auth schemas to use SUPER_ADMIN in role references
+- [x] 2.1 Create organization schemas in `app/domain/schemas/organization.py`: CreateOrganizationRequest, UpdateOrganizationRequest, OrganizationResponse, OrganizationDetailResponse
+- [x] 2.2 Create membership schemas in `app/domain/schemas/organization.py`: AddMemberRequest, UpdateMemberRoleRequest, OrganizationMemberResponse, UserOrganizationResponse
+- [x] 2.3 Create user management schemas in `app/domain/schemas/auth.py`: CreateUserRequest, CreateUserResponse, ChangePasswordRequest, ResetPasswordRequest
+- [x] 2.4 Remove RegisterRequest schema from `app/domain/schemas/auth.py`
+- [x] 2.5 Update auth schemas to use SUPER_ADMIN in role references
 
 ## 3. Repositories
 
