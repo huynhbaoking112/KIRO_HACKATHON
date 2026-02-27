@@ -7,10 +7,10 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserRole(str, Enum):
-    """User roles in the system."""
+    """System-level user roles."""
 
     USER = "user"
-    ADMIN = "admin"
+    SUPER_ADMIN = "super_admin"
 
 
 class User(BaseModel):

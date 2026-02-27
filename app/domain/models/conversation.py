@@ -19,6 +19,7 @@ class Conversation(BaseModel):
 
     id: str = Field(alias="_id")
     user_id: str
+    organization_id: Optional[str] = None
     title: str
     status: ConversationStatus = ConversationStatus.ACTIVE
     message_count: int = 0

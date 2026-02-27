@@ -13,6 +13,7 @@ class SheetConnection(BaseModel):
 
     id: str = Field(alias="_id")
     user_id: str
+    organization_id: Optional[str] = None
     sheet_id: str
     sheet_name: str = "Sheet1"
     column_mappings: list[ColumnMapping]

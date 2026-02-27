@@ -13,6 +13,11 @@ from app.domain.models.message import (
     TokenUsage,
     ToolCall,
 )
+from app.domain.models.organization import (
+    Organization,
+    OrganizationMember,
+    OrganizationRole,
+)
 from app.domain.models.sheet_connection import (
     SheetConnection,
     SheetRawData,
@@ -32,6 +37,10 @@ __all__ = [
     "MessageRole",
     "TokenUsage",
     "ToolCall",
+    # Organization models
+    "Organization",
+    "OrganizationMember",
+    "OrganizationRole",
     # Sheet models
     "SheetConnection",
     "SheetRawData",
