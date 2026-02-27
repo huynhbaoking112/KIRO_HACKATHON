@@ -3,12 +3,14 @@
 from functools import lru_cache
 
 from app.infrastructure.database.mongodb import MongoDB
-from app.repo.user_repo import UserRepository
-from app.repo.sheet_connection_repo import SheetConnectionRepository
-from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
-from app.repo.sheet_data_repo import SheetDataRepository
 from app.repo.conversation_repo import ConversationRepository
 from app.repo.message_repo import MessageRepository
+from app.repo.organization_member_repo import OrganizationMemberRepository
+from app.repo.organization_repo import OrganizationRepository
+from app.repo.sheet_connection_repo import SheetConnectionRepository
+from app.repo.sheet_data_repo import SheetDataRepository
+from app.repo.sheet_sync_state_repo import SheetSyncStateRepository
+from app.repo.user_repo import UserRepository
 
 
 @lru_cache
@@ -20,6 +22,28 @@ def get_user_repo() -> UserRepository:
     """
     db = MongoDB.get_db()
     return UserRepository(db)
+
+
+@lru_cache
+def get_org_repo() -> OrganizationRepository:
+    """Get singleton OrganizationRepository instance.
+
+    Returns:
+        OrganizationRepository instance with database connection
+    """
+    db = MongoDB.get_db()
+    return OrganizationRepository(db)
+
+
+@lru_cache
+def get_member_repo() -> OrganizationMemberRepository:
+    """Get singleton OrganizationMemberRepository instance.
+
+    Returns:
+        OrganizationMemberRepository instance with database connection
+    """
+    db = MongoDB.get_db()
+    return OrganizationMemberRepository(db)
 
 
 @lru_cache

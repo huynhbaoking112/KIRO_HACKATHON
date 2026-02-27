@@ -44,13 +44,13 @@
 
 ## 6. Dependencies
 
-- [ ] 6.1 Add get_org_repo dependency factory in `app/common/repo.py`
-- [ ] 6.2 Add get_member_repo dependency factory in `app/common/repo.py`
-- [ ] 6.3 Add get_org_service dependency factory in `app/common/service.py`
-- [ ] 6.4 Add get_user_service dependency factory in `app/common/service.py`
-- [ ] 6.5 Create get_current_organization_context dependency in `app/api/deps.py` that validates X-Organization-ID header
-- [ ] 6.6 Create require_org_admin dependency in `app/api/deps.py`
-- [ ] 6.7 Update require_admin to require_super_admin in `app/api/deps.py`
+- [x] 6.1 Add get_org_repo dependency factory in `app/common/repo.py`
+- [x] 6.2 Add get_member_repo dependency factory in `app/common/repo.py`
+- [x] 6.3 Add get_org_service dependency factory in `app/common/service.py`
+- [x] 6.4 Add get_user_service dependency factory in `app/common/service.py`
+- [x] 6.5 Create get_current_organization_context dependency in `app/api/deps.py` that validates X-Organization-ID header
+- [x] 6.6 Create require_org_admin dependency in `app/api/deps.py`
+- [x] 6.7 Update require_admin to require_super_admin in `app/api/deps.py`
 
 ## 7. Organization API Endpoints
 
