@@ -5,11 +5,12 @@ from jose import JWTError
 from app.common.exceptions import (
     AppException,
     AuthenticationError,
+    EmailAlreadyExistsError,
     InactiveUserError,
     InvalidTokenError,
     UserNotFoundError,
 )
-from app.domain.models.user import User
+from app.domain.models.user import User, UserRole
 from app.domain.schemas.auth import TokenPayload, TokenResponse
 from app.infrastructure.security.jwt import create_access_token, decode_access_token
 from app.infrastructure.security.password import hash_password, verify_password
@@ -79,6 +80,29 @@ class AuthService:
             raise UserNotFoundError()
 
         return updated_user
+
+    async def bootstrap_super_admin(
+        self,
+        *,
+        email: str,
+        password: str,
+    ) -> User:
+        """Create initial SUPER_ADMIN when system has no users."""
+        total_users = await self.user_repo.count_all()
+        if total_users > 0:
+            raise AppException(
+                "Bootstrap super admin is only allowed when the system has no users"
+            )
+
+        existing_user = await self.user_repo.find_by_email(email)
+        if existing_user is not None:
+            raise EmailAlreadyExistsError()
+
+        return await self.user_repo.create(
+            email=email,
+            hashed_password=hash_password(password),
+            role=UserRole.SUPER_ADMIN,
+        )
 
     def create_access_token(self, user: User) -> str:
         """Create JWT access token for user.

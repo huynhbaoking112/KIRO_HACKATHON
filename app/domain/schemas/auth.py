@@ -69,6 +69,13 @@ class CreateUserRequest(BaseModel):
         use_enum_values = True
 
 
+class BootstrapSuperAdminRequest(BaseModel):
+    """Schema for bootstrapping initial super-admin account."""
+
+    email: EmailStr
+    password: str = Field(min_length=8)
+
+
 class CreateUserResponse(BaseModel):
     """Schema for create user response."""
 

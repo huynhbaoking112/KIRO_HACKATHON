@@ -113,6 +113,10 @@ class UserRepository:
 
         return users
 
+    async def count_all(self) -> int:
+        """Count total users in the system."""
+        return await self.collection.count_documents({})
+
     async def update_password(
         self,
         user_id: str,
