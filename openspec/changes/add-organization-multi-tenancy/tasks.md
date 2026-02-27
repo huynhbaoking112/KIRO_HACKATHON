@@ -35,12 +35,12 @@
 
 ## 5. Services
 
-- [ ] 5.1 Create OrganizationService in `app/services/organization/organization_service.py` with methods: create_organization, get_organization, list_organizations, update_organization, deactivate_organization
-- [ ] 5.2 Add membership methods to OrganizationService: add_member, remove_member, change_member_role, get_organization_members, get_user_organizations
-- [ ] 5.3 Add permission helper methods: _check_can_manage_members, _check_is_member
-- [ ] 5.4 Create UserService in `app/services/user/user_service.py` with methods: create_user, list_users, get_user, deactivate_user, reset_password
-- [ ] 5.5 Remove register_user method from AuthService in `app/services/auth/auth_service.py`
-- [ ] 5.6 Add change_password method to AuthService
+- [x] 5.1 Create OrganizationService in `app/services/organization/organization_service.py` with methods: create_organization, get_organization, list_organizations, update_organization, deactivate_organization
+- [x] 5.2 Add membership methods to OrganizationService: add_member, remove_member, change_member_role, get_organization_members, get_user_organizations
+- [x] 5.3 Add permission helper methods: _check_can_manage_members, _check_is_member
+- [x] 5.4 Create UserService in `app/services/user/user_service.py` with methods: create_user, list_users, get_user, deactivate_user, reset_password
+- [x] 5.5 Remove register_user method from AuthService in `app/services/auth/auth_service.py`
+- [x] 5.6 Add change_password method to AuthService
 
 ## 6. Dependencies
 
