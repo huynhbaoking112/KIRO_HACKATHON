@@ -81,9 +81,9 @@
 
 ## 10. Auth Updates
 
-- [ ] 10.1 Remove /api/v1/auth/register endpoint from `app/api/v1/auth/routes.py`
-- [ ] 10.2 Implement POST /api/v1/auth/change-password endpoint
-- [ ] 10.3 Update JWT token generation to use SUPER_ADMIN role
+- [x] 10.1 Remove /api/v1/auth/register endpoint from `app/api/v1/auth/routes.py`
+- [x] 10.2 Implement POST /api/v1/auth/change-password endpoint
+- [x] 10.3 Update JWT token generation to use SUPER_ADMIN role
 
 ## 11. Router Registration
 
