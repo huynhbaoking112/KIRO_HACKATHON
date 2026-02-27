@@ -89,3 +89,9 @@ class ResetPasswordRequest(BaseModel):
     """Schema for admin resetting another user's password."""
 
     new_password: str = Field(min_length=8)
+
+
+class UpdateUserRequest(BaseModel):
+    """Schema for user update requests (currently only deactivation)."""
+
+    is_active: bool

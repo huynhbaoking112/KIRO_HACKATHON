@@ -111,11 +111,11 @@ class UserService:
         user_id: str,
         actor_user: User,
         organization_id: Optional[str] = None,
-    ) -> Optional[User]:
+    ) -> User:
         """Get user details within actor permission scope."""
         user = await self.user_repo.find_by_id(user_id)
         if user is None:
-            return None
+            raise UserNotFoundError()
 
         if self._is_super_admin(actor_user):
             return user
@@ -144,7 +144,7 @@ class UserService:
         user_id: str,
         actor_user: User,
         organization_id: Optional[str] = None,
-    ) -> Optional[User]:
+    ) -> User:
         """Deactivate a user account in actor permission scope."""
         if user_id == actor_user.id:
             raise AppException("Cannot deactivate yourself")
@@ -155,7 +155,10 @@ class UserService:
             organization_id=organization_id,
         )
 
-        return await self.user_repo.update_is_active(user_id, is_active=False)
+        updated_user = await self.user_repo.update_is_active(user_id, is_active=False)
+        if updated_user is None:
+            raise UserNotFoundError()
+        return updated_user
 
     async def reset_password(
         self,
@@ -164,7 +167,7 @@ class UserService:
         new_password: str,
         actor_user: User,
         organization_id: Optional[str] = None,
-    ) -> Optional[User]:
+    ) -> User:
         """Reset user password in actor permission scope."""
         await self._check_can_manage_target_user(
             actor_user=actor_user,
@@ -172,10 +175,13 @@ class UserService:
             organization_id=organization_id,
         )
 
-        return await self.user_repo.update_password(
+        updated_user = await self.user_repo.update_password(
             user_id=user_id,
             hashed_password=hash_password(new_password),
         )
+        if updated_user is None:
+            raise UserNotFoundError()
+        return updated_user
 
     async def _check_can_manage_target_user(
         self,

@@ -70,14 +70,14 @@
 
 ## 9. User Management API Endpoints
 
-- [ ] 9.1 Create user management router in `app/api/v1/users/routes.py`
-- [ ] 9.2 Implement POST /api/v1/users - create user (Admin only)
-- [ ] 9.3 Implement GET /api/v1/users - list users (scoped by permission)
-- [ ] 9.4 Implement GET /api/v1/users/me - get current user profile
-- [ ] 9.5 Implement GET /api/v1/users/me/organizations - list user's organizations
-- [ ] 9.6 Implement GET /api/v1/users/{user_id} - get user details
-- [ ] 9.7 Implement PATCH /api/v1/users/{user_id} - update user (deactivate)
-- [ ] 9.8 Implement POST /api/v1/users/{user_id}/reset-password - reset password
+- [x] 9.1 Create user management router in `app/api/v1/users/routes.py`
+- [x] 9.2 Implement POST /api/v1/users - create user (Admin only)
+- [x] 9.3 Implement GET /api/v1/users - list users (scoped by permission)
+- [x] 9.4 Implement GET /api/v1/users/me - get current user profile
+- [x] 9.5 Implement GET /api/v1/users/me/organizations - list user's organizations
+- [x] 9.6 Implement GET /api/v1/users/{user_id} - get user details
+- [x] 9.7 Implement PATCH /api/v1/users/{user_id} - update user (deactivate)
+- [x] 9.8 Implement POST /api/v1/users/{user_id}/reset-password - reset password
 
 ## 10. Auth Updates
 
