@@ -4,7 +4,9 @@ from functools import lru_cache
 
 from app.common.repo import (
     get_conversation_repo,
+    get_member_repo,
     get_message_repo,
+    get_org_repo,
     get_sheet_connection_repo,
     get_sheet_data_repo,
     get_sheet_sync_state_repo,
@@ -20,7 +22,9 @@ from app.services.ai.pipeline_validator import PipelineValidator
 from app.services.analytics.analytics_service import AnalyticsService
 from app.services.analytics.cache_manager import AnalyticsCacheManager
 from app.services.auth.auth_service import AuthService
+from app.services.organization.organization_service import OrganizationService
 from app.services.sheet_crawler.crawler_service import SheetCrawlerService
+from app.services.user.user_service import UserService
 
 
 @lru_cache
@@ -43,6 +47,34 @@ def get_auth_service() -> AuthService:
     """
     user_repo = get_user_repo()
     return AuthService(user_repo)
+
+
+@lru_cache
+def get_org_service() -> OrganizationService:
+    """Get singleton OrganizationService instance.
+
+    Returns:
+        OrganizationService instance with repositories
+    """
+    return OrganizationService(
+        organization_repo=get_org_repo(),
+        member_repo=get_member_repo(),
+        user_repo=get_user_repo(),
+    )
+
+
+@lru_cache
+def get_user_service() -> UserService:
+    """Get singleton UserService instance.
+
+    Returns:
+        UserService instance with repositories
+    """
+    return UserService(
+        user_repo=get_user_repo(),
+        organization_repo=get_org_repo(),
+        member_repo=get_member_repo(),
+    )
 
 
 @lru_cache

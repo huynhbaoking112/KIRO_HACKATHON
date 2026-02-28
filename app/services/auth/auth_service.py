@@ -3,12 +3,14 @@
 from jose import JWTError
 
 from app.common.exceptions import (
+    AppException,
     AuthenticationError,
     EmailAlreadyExistsError,
     InactiveUserError,
     InvalidTokenError,
+    UserNotFoundError,
 )
-from app.domain.models.user import User
+from app.domain.models.user import User, UserRole
 from app.domain.schemas.auth import TokenPayload, TokenResponse
 from app.infrastructure.security.jwt import create_access_token, decode_access_token
 from app.infrastructure.security.password import hash_password, verify_password
@@ -25,28 +27,6 @@ class AuthService:
             user_repo: UserRepository instance for database operations
         """
         self.user_repo = user_repo
-
-    async def register_user(self, email: str, password: str) -> User:
-        """Register a new user with email and password.
-
-        Args:
-            email: User email address
-            password: Plain text password (will be hashed)
-
-        Returns:
-            Created User instance
-
-        Raises:
-            EmailAlreadyExistsError: If email is already registered
-        """
-        existing_user = await self.user_repo.find_by_email(email)
-        if existing_user is not None:
-            raise EmailAlreadyExistsError()
-
-        hashed = hash_password(password)
-        user = await self.user_repo.create(email=email, hashed_password=hashed)
-
-        return user
 
     async def authenticate_user(self, email: str, password: str) -> TokenResponse:
         """Authenticate user and return JWT token.
@@ -76,6 +56,53 @@ class AuthService:
         token = self.create_access_token(user)
 
         return TokenResponse(access_token=token)
+
+    async def change_password(
+        self,
+        *,
+        user_id: str,
+        current_password: str,
+        new_password: str,
+    ) -> User:
+        """Change password for current user after verifying current password."""
+        user = await self.user_repo.find_by_id(user_id)
+        if user is None:
+            raise UserNotFoundError()
+
+        if not verify_password(current_password, user.hashed_password):
+            raise AppException("Current password is incorrect")
+
+        updated_user = await self.user_repo.update_password(
+            user_id=user_id,
+            hashed_password=hash_password(new_password),
+        )
+        if updated_user is None:
+            raise UserNotFoundError()
+
+        return updated_user
+
+    async def bootstrap_super_admin(
+        self,
+        *,
+        email: str,
+        password: str,
+    ) -> User:
+        """Create initial SUPER_ADMIN when system has no users."""
+        total_users = await self.user_repo.count_all()
+        if total_users > 0:
+            raise AppException(
+                "Bootstrap super admin is only allowed when the system has no users"
+            )
+
+        existing_user = await self.user_repo.find_by_email(email)
+        if existing_user is not None:
+            raise EmailAlreadyExistsError()
+
+        return await self.user_repo.create(
+            email=email,
+            hashed_password=hash_password(password),
+            role=UserRole.SUPER_ADMIN,
+        )
 
     def create_access_token(self, user: User) -> str:
         """Create JWT access token for user.

@@ -53,6 +53,7 @@ class ChatService:
         user_id: str,
         content: str,
         conversation_id: Optional[str] = None,
+        organization_id: Optional[str] = None,
     ) -> tuple[str, str]:
         """Save user message and return message_id and conversation_id.
 
@@ -72,6 +73,7 @@ class ChatService:
         if conversation_id is None:
             conversation = await self.conversation_service.create_conversation(
                 user_id=user_id,
+                organization_id=organization_id,
             )
             conversation_id = conversation.id
 
@@ -80,6 +82,7 @@ class ChatService:
             conversation_id=conversation_id,
             role=MessageRole.USER,
             content=content,
+            organization_id=organization_id,
         )
 
         return message.id, conversation_id
@@ -87,6 +90,7 @@ class ChatService:
     async def search_conversations(
         self,
         user_id: str,
+        organization_id: Optional[str] = None,
         status: Optional[ConversationStatus] = None,
         search: Optional[str] = None,
         skip: int = 0,
@@ -110,6 +114,7 @@ class ChatService:
         """
         return await self.conversation_service.search_user_conversations(
             user_id=user_id,
+            organization_id=organization_id,
             status=status,
             search=search,
             skip=skip,
@@ -120,6 +125,7 @@ class ChatService:
         self,
         user_id: str,
         conversation_id: str,
+        organization_id: Optional[str] = None,
     ) -> None:
         """Process agent response using ChatWorkflow and stream via socket events.
 
@@ -152,6 +158,7 @@ class ChatService:
             # Load user's sheet connections with schemas
             user_connections = await self.data_query_service.get_user_connections(
                 user_id=user_id,
+                organization_id=organization_id,
             )
 
             # Load conversation history as LangChain messages
@@ -182,6 +189,7 @@ class ChatService:
                 conversation_id=conversation_id,
                 role=MessageRole.ASSISTANT,
                 content=response_content,
+                organization_id=organization_id,
                 metadata=MessageMetadata(),
             )
 

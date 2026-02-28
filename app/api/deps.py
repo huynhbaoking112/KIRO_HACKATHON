@@ -1,16 +1,28 @@
 """Shared dependencies for API endpoints."""
 
-from fastapi import Depends, HTTPException, status
+from dataclasses import dataclass
+
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from app.common.exceptions import InvalidTokenError
-from app.common.repo import get_user_repo
+from app.common.repo import get_member_repo, get_org_repo, get_user_repo
 from app.common.service import get_auth_service
+from app.domain.models.organization import OrganizationRole
 from app.domain.models.user import User, UserRole
+from app.repo.organization_member_repo import OrganizationMemberRepository
+from app.repo.organization_repo import OrganizationRepository
 from app.repo.user_repo import UserRepository
 from app.services.auth.auth_service import AuthService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+
+@dataclass
+class OrganizationContext:
+    """Resolved organization context for current request."""
+
+    organization_id: str
 
 
 async def get_current_user(
@@ -75,27 +87,95 @@ async def get_current_active_user(
     return current_user
 
 
-async def require_admin(
+async def get_current_organization_context(
+    x_organization_id: str | None = Header(default=None, alias="X-Organization-ID"),
+    current_user: User = Depends(get_current_active_user),
+    org_repo: OrganizationRepository = Depends(get_org_repo),
+    member_repo: OrganizationMemberRepository = Depends(get_member_repo),
+) -> OrganizationContext:
+    """Validate organization header and current user's access to that organization."""
+    if not x_organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="X-Organization-ID header is required",
+        )
+
+    organization = await org_repo.find_by_id(x_organization_id)
+    if organization is None or not organization.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Organization not found",
+        )
+
+    user_role = current_user.role if isinstance(current_user.role, str) else current_user.role.value
+    if user_role == UserRole.SUPER_ADMIN.value:
+        return OrganizationContext(organization_id=x_organization_id)
+
+    membership = await member_repo.find_by_user_and_org(
+        user_id=current_user.id,
+        organization_id=x_organization_id,
+        is_active=True,
+    )
+    if membership is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied",
+        )
+
+    return OrganizationContext(organization_id=x_organization_id)
+
+
+async def require_org_admin(
+    current_user: User = Depends(get_current_active_user),
+    context: OrganizationContext = Depends(get_current_organization_context),
+    member_repo: OrganizationMemberRepository = Depends(get_member_repo),
+) -> User:
+    """Require org-admin privileges for current organization context."""
+    user_role = current_user.role if isinstance(current_user.role, str) else current_user.role.value
+    if user_role == UserRole.SUPER_ADMIN.value:
+        return current_user
+
+    membership = await member_repo.find_by_user_and_org(
+        user_id=current_user.id,
+        organization_id=context.organization_id,
+        is_active=True,
+    )
+    if membership is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied",
+        )
+
+    member_role = membership.role if isinstance(membership.role, str) else membership.role.value
+    if member_role != OrganizationRole.ADMIN.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied",
+        )
+    return current_user
+
+
+async def require_super_admin(
     current_user: User = Depends(get_current_active_user),
 ) -> User:
-    """Require admin role for endpoint access.
+    """Require super-admin role for endpoint access.
 
     Args:
         current_user: User from get_current_active_user dependency
 
     Returns:
-        User instance if admin
+        User instance if super-admin
 
     Raises:
-        HTTPException: 403 if user is not admin
+        HTTPException: 403 if user is not super-admin
     """
     user_role = current_user.role
     if isinstance(user_role, str):
-        is_admin = user_role == UserRole.ADMIN.value
+        is_super_admin = user_role == UserRole.SUPER_ADMIN.value
     else:
-        is_admin = user_role == UserRole.ADMIN
+        is_super_admin = user_role == UserRole.SUPER_ADMIN
 
-    if not is_admin:
+    if not is_super_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Permission denied",

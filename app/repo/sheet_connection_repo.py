@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.domain.models.sheet_connection import SheetConnection
@@ -25,7 +26,10 @@ class SheetConnectionRepository:
         self.collection = db.sheet_connections
 
     async def create(
-        self, user_id: str, data: CreateConnectionRequest
+        self,
+        user_id: str,
+        data: CreateConnectionRequest,
+        organization_id: Optional[str] = None,
     ) -> SheetConnection:
         """Create a new sheet connection in database.
 
@@ -39,6 +43,7 @@ class SheetConnectionRepository:
         now = datetime.now(timezone.utc)
         connection_data = {
             "user_id": user_id,
+            "organization_id": organization_id,
             "sheet_id": data.sheet_id,
             "sheet_name": data.sheet_name,
             "column_mappings": [m.model_dump() for m in data.column_mappings],
@@ -54,7 +59,11 @@ class SheetConnectionRepository:
 
         return SheetConnection(**connection_data)
 
-    async def find_by_id(self, connection_id: str) -> Optional[SheetConnection]:
+    async def find_by_id(
+        self,
+        connection_id: str,
+        organization_id: Optional[str] = None,
+    ) -> Optional[SheetConnection]:
         """Find sheet connection by ID.
 
         Args:
@@ -65,10 +74,14 @@ class SheetConnectionRepository:
         """
         try:
             object_id = ObjectId(connection_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return None
 
-        doc = await self.collection.find_one({"_id": object_id})
+        query: dict = {"_id": object_id}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
+        doc = await self.collection.find_one(query)
 
         if doc is None:
             return None
@@ -76,7 +89,11 @@ class SheetConnectionRepository:
         doc["_id"] = str(doc["_id"])
         return SheetConnection(**doc)
 
-    async def find_by_user_id(self, user_id: str) -> list[SheetConnection]:
+    async def find_by_user_id(
+        self,
+        user_id: str,
+        organization_id: Optional[str] = None,
+    ) -> list[SheetConnection]:
         """Find all sheet connections for a user.
 
         Args:
@@ -85,7 +102,11 @@ class SheetConnectionRepository:
         Returns:
             List of SheetConnection instances belonging to the user
         """
-        cursor = self.collection.find({"user_id": user_id})
+        query: dict = {"user_id": user_id}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
+        cursor = self.collection.find(query)
         connections = []
 
         async for doc in cursor:
@@ -94,13 +115,20 @@ class SheetConnectionRepository:
 
         return connections
 
-    async def find_all_enabled(self) -> list[SheetConnection]:
+    async def find_all_enabled(
+        self,
+        organization_id: Optional[str] = None,
+    ) -> list[SheetConnection]:
         """Find all enabled sheet connections.
 
         Returns:
             List of all enabled SheetConnection instances
         """
-        cursor = self.collection.find({"sync_enabled": True})
+        query: dict = {"sync_enabled": True}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
+        cursor = self.collection.find(query)
         connections = []
 
         async for doc in cursor:
@@ -110,7 +138,10 @@ class SheetConnectionRepository:
         return connections
 
     async def update(
-        self, connection_id: str, data: UpdateConnectionRequest
+        self,
+        connection_id: str,
+        data: UpdateConnectionRequest,
+        organization_id: Optional[str] = None,
     ) -> Optional[SheetConnection]:
         """Update a sheet connection.
 
@@ -123,7 +154,7 @@ class SheetConnectionRepository:
         """
         try:
             object_id = ObjectId(connection_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return None
 
         update_data = {"updated_at": datetime.now(timezone.utc)}
@@ -137,8 +168,12 @@ class SheetConnectionRepository:
         if data.sync_enabled is not None:
             update_data["sync_enabled"] = data.sync_enabled
 
+        query: dict = {"_id": object_id}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
         result = await self.collection.find_one_and_update(
-            {"_id": object_id},
+            query,
             {"$set": update_data},
             return_document=True,
         )
@@ -149,7 +184,11 @@ class SheetConnectionRepository:
         result["_id"] = str(result["_id"])
         return SheetConnection(**result)
 
-    async def delete(self, connection_id: str) -> bool:
+    async def delete(
+        self,
+        connection_id: str,
+        organization_id: Optional[str] = None,
+    ) -> bool:
         """Delete a sheet connection.
 
         Args:
@@ -160,8 +199,12 @@ class SheetConnectionRepository:
         """
         try:
             object_id = ObjectId(connection_id)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError, InvalidId):
             return False
 
-        result = await self.collection.delete_one({"_id": object_id})
+        query: dict = {"_id": object_id}
+        if organization_id is not None:
+            query["organization_id"] = organization_id
+
+        result = await self.collection.delete_one(query)
         return result.deleted_count > 0

@@ -1,1 +1,0 @@
-Dùng review code power review code unstage trong codebase hiện tại

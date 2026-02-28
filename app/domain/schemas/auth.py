@@ -1,17 +1,12 @@
 """Authentication schemas for request/response validation."""
 
 from datetime import datetime, timezone
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
+from app.domain.models.organization import OrganizationRole
 from app.domain.models.user import UserRole
-
-
-class RegisterRequest(BaseModel):
-    """Schema for user registration request."""
-
-    email: EmailStr
-    password: str = Field(min_length=8)
 
 
 class LoginRequest(BaseModel):
@@ -60,3 +55,50 @@ class UserCreate(BaseModel):
 
     class Config:
         use_enum_values = True
+
+
+class CreateUserRequest(BaseModel):
+    """Schema for admin/super admin creating a user account."""
+
+    email: EmailStr
+    password: str = Field(min_length=8)
+    organization_id: Optional[str] = None
+    organization_role: OrganizationRole = OrganizationRole.USER
+
+    class Config:
+        use_enum_values = True
+
+
+class BootstrapSuperAdminRequest(BaseModel):
+    """Schema for bootstrapping initial super-admin account."""
+
+    email: EmailStr
+    password: str = Field(min_length=8)
+
+
+class CreateUserResponse(BaseModel):
+    """Schema for create user response."""
+
+    user: UserResponse
+    organization_id: Optional[str] = None
+    organization_role: Optional[str] = None
+    temporary_password: bool = True
+
+
+class ChangePasswordRequest(BaseModel):
+    """Schema for changing current user's password."""
+
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
+class ResetPasswordRequest(BaseModel):
+    """Schema for admin resetting another user's password."""
+
+    new_password: str = Field(min_length=8)
+
+
+class UpdateUserRequest(BaseModel):
+    """Schema for user update requests (currently only deactivation)."""
+
+    is_active: bool

@@ -46,7 +46,11 @@ class DataQueryService:
         self.data_repo = data_repo
         self.pipeline_validator = pipeline_validator
 
-    async def get_user_connections(self, user_id: str) -> list[dict[str, Any]]:
+    async def get_user_connections(
+        self,
+        user_id: str,
+        organization_id: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
         """Get all connections with schemas for a user.
 
         Returns connection info including field names, types, and sample values.
@@ -57,7 +61,10 @@ class DataQueryService:
         Returns:
             List of connection dicts with schema information
         """
-        connections = await self.connection_repo.find_by_user_id(user_id)
+        connections = await self.connection_repo.find_by_user_id(
+            user_id,
+            organization_id=organization_id,
+        )
 
         result: list[dict[str, Any]] = []
 
